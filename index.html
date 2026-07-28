@@ -1,0 +1,3556 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HRONE - 人力资源管理平台</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --primary: #5b6afa;
+    --primary-light: #eef0ff;
+    --primary-dark: #4453d4;
+    --sidebar-bg: #fff;
+    --active-blue: #e8f3ff;
+    --active-gray: #f2f4f7;
+    --tab-active-bg: #fff;
+    --tab-bg: #f5f6fa;
+    --border: #e8eaed;
+    --text: #333;
+    --text-secondary: #8a92a6;
+    --text-light: #b0b8cc;
+    --bg: #f5f6fa;
+    --green: #52c41a;
+    --orange: #fa8c16;
+    --red: #ff4d4f;
+    --blue: #2b7cd3;
+    --dark-blue: #1a3a6e;
+    --card-gap: 10px;
+  }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    font-size: 14px;
+    overflow: hidden;
+    height: 100vh;
+  }
+
+  /* ===== Top Navigation Bar ===== */
+  .top-nav {
+    height: 48px;
+    background: #fff;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    position: relative;
+    z-index: 100;
+    flex-shrink: 0;
+  }
+  .nav-left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .logo {
+    font-size: 20px;
+    font-weight: 700;
+    color: #1a1a1a;
+    letter-spacing: 1px;
+  }
+  .home-icon {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    cursor: pointer;
+    color: #5a6577;
+    transition: background .2s;
+  }
+  .home-icon:hover { background: #f0f2f5; }
+  .home-icon svg { width: 18px; height: 18px; }
+  .all-menu-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    color: #5a6577;
+    font-size: 13px;
+    transition: background .2s;
+  }
+  .all-menu-btn:hover { background: #f0f2f5; }
+  .all-menu-btn .grid-icon {
+    width: 16px;
+    height: 16px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 2px;
+  }
+  .all-menu-btn .grid-icon span {
+    border-radius: 2px;
+  }
+  .all-menu-btn .grid-icon span:nth-child(1) { background: #ff6b6b; }
+  .all-menu-btn .grid-icon span:nth-child(2) { background: #4ecdc4; }
+  .all-menu-btn .grid-icon span:nth-child(3) { background: #ffd93d; }
+  .all-menu-btn .grid-icon span:nth-child(4) { background: #6c8ce0; }
+
+  .nav-right {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .nav-icon {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    cursor: pointer;
+    color: #5a6577;
+    position: relative;
+    transition: background .2s;
+  }
+  .nav-icon:hover { background: #f0f2f5; }
+  .nav-icon svg { width: 18px; height: 18px; }
+  .badge {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    min-width: 16px;
+    height: 16px;
+    background: var(--red);
+    color: #fff;
+    font-size: 10px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 4px;
+    font-weight: 600;
+  }
+  .nav-avatar {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 8px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background .2s;
+  }
+  .nav-avatar:hover { background: #f0f2f5; }
+  .nav-avatar .avatar-circle {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--primary);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .nav-avatar .user-name { font-size: 13px; color: #333; }
+
+  /* ===== All Menu Dropdown — Full Page Overlay ===== */
+  .all-menu-dropdown {
+    position: fixed;
+    top: 48px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.35);
+    z-index: 200;
+    display: none;
+    overflow-y: auto;
+    padding: 24px;
+  }
+  .all-menu-dropdown.show { display: block; }
+  .all-menu-content {
+    background: #fff;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+    min-height: calc(100vh - 48px - 48px);
+  }
+  .menu-category {
+    margin-bottom: 8px;
+  }
+  .menu-category-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #333;
+    padding: 6px 0;
+    border-bottom: 1px solid #f0f2f5;
+    margin-bottom: 4px;
+  }
+  .menu-category-title .cat-icon {
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    color: #fff;
+  }
+  .menu-sub-items {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 4px;
+  }
+  .menu-sub-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    color: #555;
+    transition: background .15s;
+    white-space: nowrap;
+  }
+  .menu-sub-item:hover { background: var(--primary-light); color: var(--primary); }
+  .menu-sub-item .count { display: none; }
+
+  /* ===== Main Layout ===== */
+  .main-layout {
+    display: flex;
+    height: calc(100vh - 48px);
+  }
+
+  /* ===== Sidebar ===== */
+  .sidebar {
+    width: 200px;
+    background: var(--sidebar-bg);
+    border-right: 1px solid var(--border);
+    overflow-y: auto;
+    overflow-x: visible;
+    flex-shrink: 0;
+    padding: var(--card-gap) 0;
+  }
+  .sidebar-item { padding: 0; }
+
+  /* Level-1 menu label (shared) */
+  .sidebar-item > .menu-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 16px;
+    height: 36px;
+    cursor: pointer;
+    font-size: 13px;
+    color: #333;
+    transition: background .15s;
+    user-select: none;
+  }
+  /* 首页 (leaf) — larger font, light blue on active/hover */
+  .sidebar-item > .menu-label.leaf {
+    font-size: 14px;
+  }
+  .sidebar-item > .menu-label.leaf:hover,
+  .sidebar-item > .menu-label.leaf.active {
+    background: var(--active-blue);
+    color: var(--primary);
+    font-weight: 600;
+  }
+  /* Parent level-1 — smaller font, indented, gray on active/hover */
+  .sidebar-item > .menu-label.parent {
+    padding-left: 44px;
+    font-size: 12px;
+  }
+  .sidebar-item > .menu-label.parent:hover,
+  .sidebar-item > .menu-label.parent.active {
+    background: var(--active-gray);
+  }
+  .sidebar-item > .menu-label.parent.active {
+    color: var(--primary);
+    font-weight: 600;
+  }
+  /* Dots */
+  .sidebar-item .menu-label .dot-l1 {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: #5b6afa; flex-shrink: 0;
+  }
+  .sidebar-item .menu-label.leaf.active .dot-l1 { background: var(--primary); }
+  .sidebar-item .menu-label.parent.active .dot-l1 { background: var(--primary); }
+  /* Right area (count + arrow) */
+  .sidebar-item .menu-label .menu-right {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .sidebar-item .menu-label .menu-right .count { display: none; }
+  .sidebar-item .menu-label .arrow {
+    display: flex;
+    align-items: center;
+    transition: transform .2s;
+    color: var(--text-light);
+  }
+  .sidebar-item .menu-label .arrow svg {
+    width: 12px;
+    height: 12px;
+  }
+  .sidebar-item.expanded .menu-label .arrow { transform: rotate(90deg); }
+
+  /* Sub items */
+  .sidebar-sub { display: none; }
+  .sidebar-item.expanded .sidebar-sub { display: block; }
+  .sidebar-sub-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 16px 0 52px;
+    height: 34px;
+    cursor: pointer;
+    font-size: 13px;
+    color: #666;
+    transition: all .15s;
+    user-select: none;
+  }
+  .sidebar-sub-item .dot-l2 {
+    width: 5px; height: 5px; border-radius: 50%;
+    background: #c0c8d8; flex-shrink: 0;
+  }
+  /* Sub items — light blue on active/hover */
+  .sidebar-sub-item:hover,
+  .sidebar-sub-item.active {
+    background: var(--active-blue);
+    color: var(--primary);
+    font-weight: 600;
+  }
+  .sidebar-sub-item.active .dot-l2 { background: var(--primary); }
+  .sidebar-sub-item .count { display: none; }
+  .sidebar-sub-item .new-tag {
+    background: var(--red);
+    color: #fff;
+    font-size: 9px;
+    padding: 1px 5px;
+    border-radius: 8px;
+    font-weight: 600;
+    margin-left: 4px;
+  }
+
+  /* ===== Tab Bar ===== */
+  .tab-bar {
+    display: flex;
+    align-items: stretch;
+    background: #fff;
+    border-radius: 6px;
+    height: 34px;
+    flex-shrink: 0;
+    overflow: visible;
+  }
+  .tab-bar-scroll {
+    display: flex;
+    align-items: stretch;
+    flex: 1;
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
+  .tab-bar-scroll::-webkit-scrollbar { height: 0; }
+  .tab-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0 12px;
+    cursor: pointer;
+    font-size: 12px;
+    color: #666;
+    border-right: 1px solid var(--border);
+    white-space: nowrap;
+    transition: all .15s;
+    user-select: none;
+    position: relative;
+  }
+  .tab-item:hover { background: #f5f6fa; }
+  .tab-item.active {
+    background: var(--tab-active-bg);
+    color: var(--primary);
+    font-weight: 600;
+    border-bottom: 2px solid var(--primary);
+  }
+  .tab-item .tab-close {
+    width: 16px;
+    height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 3px;
+    font-size: 12px;
+    color: var(--text-light);
+    transition: all .15s;
+  }
+  .tab-item .tab-close:hover { background: #ddd; color: #333; }
+  .tab-arrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    cursor: pointer;
+    color: var(--text-secondary);
+    flex-shrink: 0;
+    position: relative;
+  }
+  .tab-arrow:hover { background: #f5f6fa; }
+  .tab-arrow svg { width: 14px; height: 14px; }
+
+  /* Tab dropdown */
+  .tab-dropdown {
+    position: absolute;
+    top: 34px;
+    right: 0;
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+    display: none;
+    z-index: 500;
+    overflow: hidden;
+  }
+  .tab-dropdown.show { display: block; }
+  .tab-dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    cursor: pointer;
+    font-size: 13px;
+    color: #444;
+    transition: background .15s;
+    white-space: nowrap;
+  }
+  .tab-dropdown-item:hover { background: #f5f6fa; }
+  .tab-dropdown-item svg { width: 14px; height: 14px; color: var(--text-secondary); }
+
+  /* ===== Content Area ===== */
+  .right-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: visible;
+    padding: var(--card-gap);
+    gap: var(--card-gap);
+    background: var(--bg);
+    min-height: 0;
+    min-width: 0;
+  }
+  .content-area {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    background: var(--bg);
+    position: relative;
+    min-height: 0;
+  }
+  .tab-content {
+    display: none;
+    height: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+  .tab-content.active { display: block; }
+
+  /* ===== Workbench (图3) ===== */
+  .workbench {
+    padding: var(--card-gap);
+    display: flex;
+    gap: var(--card-gap);
+    height: 100%;
+  }
+  .wb-left, .wb-right {
+    background: #fff;
+    border-radius: 24px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .wb-left { flex: 1.4; }
+  .wb-right { flex: 1; }
+  .wb-header {
+    display: flex;
+    align-items: center;
+    padding: 12px 16px;
+    border-bottom: 1px solid #e8eaed;
+  }
+  .wb-header .title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+  }
+  .wb-header .title .count-badge {
+    font-size: 12px;
+    color: var(--text-secondary);
+    font-weight: 400;
+  }
+  .wb-header .link {
+    margin-left: auto;
+    font-size: 12px;
+    color: var(--primary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 2px;
+  }
+  .wb-header .link:hover { text-decoration: underline; }
+  .wb-filters {
+    display: flex;
+    gap: 2px;
+    padding: 8px 16px;
+    flex-wrap: wrap;
+  }
+  .wb-filter {
+    padding: 3px 10px;
+    border-radius: 4px;
+    font-size: 11px;
+    color: #666;
+    cursor: pointer;
+    transition: all .15s;
+  }
+  .wb-filter:hover { background: #f0f2f5; }
+  .wb-filter.active { background: var(--primary-light); color: var(--primary); font-weight: 600; }
+  .wb-list {
+    flex: 1;
+    overflow-y: auto;
+  }
+  .wb-list-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 16px;
+    cursor: pointer;
+    transition: background .15s;
+  }
+  .wb-list-item:hover { background: #fafbff; }
+  .wb-list-item .item-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 600;
+    color: #fff;
+    flex-shrink: 0;
+  }
+  .wb-list-item .item-content { flex: 1; min-width: 0; }
+  .wb-list-item .item-title {
+    font-size: 10px;
+    color: #333;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    margin-bottom: 3px;
+  }
+  .wb-list-item .item-time {
+    font-size: 9px;
+    color: var(--text-light);
+  }
+  .wb-list-item .item-action {
+    padding: 3px 10px;
+    border-radius: 4px;
+    background: var(--primary-light);
+    color: var(--primary);
+    font-size: 9px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
+    transition: all .15s;
+  }
+  .wb-list-item .item-action:hover { background: var(--primary); color: #fff; }
+
+  /* Notification items */
+  .notif-item {
+    padding: 12px 16px;
+    cursor: pointer;
+    transition: background .15s;
+  }
+  .notif-item:hover { background: #fafbff; }
+  .notif-item .notif-tag {
+    display: inline-block;
+    padding: 1px 8px;
+    border-radius: 3px;
+    font-size: 9px;
+    margin-bottom: 5px;
+  }
+  .notif-item .notif-tag.blue { background: #e6f4ff; color: #1677ff; }
+  .notif-item .notif-title { font-size: 10px; color: #333; margin-bottom: 3px; line-height: 1.5; }
+  .notif-item .notif-time { font-size: 9px; color: var(--text-light); }
+
+  /* ===== Org Adjustment Apply Page (New: 调动流程风格) ===== */
+  .org-apply-list-page {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    background: #fff;
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  .org-apply-list-tabs {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 20px 0;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+    background: #fff;
+  }
+  .org-apply-list-tab {
+    height: 32px;
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    border-radius: 6px 6px 0 0;
+    cursor: pointer;
+    font-size: 13px;
+    color: #666;
+    border-bottom: 2px solid transparent;
+    transition: all .15s;
+    user-select: none;
+  }
+  .org-apply-list-tab:hover { color: var(--primary); }
+  .org-apply-list-tab.active { color: var(--primary); font-weight: 600; border-bottom-color: var(--primary); background: #f8f9ff; }
+  .org-apply-list-query {
+    padding: 10px 20px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px 20px;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+  .org-apply-list-query .query-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .org-apply-list-query .query-field.full-row {
+    grid-column: 1 / -1;
+  }
+  .org-apply-list-query .query-field label {
+    font-size: 12px;
+    color: #666;
+    white-space: nowrap;
+  }
+  .org-apply-list-query .query-field input,
+  .org-apply-list-query .query-field select {
+    width: 100%;
+    padding: 6px 10px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    font-size: 13px;
+    outline: none;
+    background: #fff;
+    color: #333;
+    transition: border-color .2s;
+  }
+  .org-apply-list-query .query-field input:focus,
+  .org-apply-list-query .query-field select:focus { border-color: var(--primary); }
+  .org-apply-list-query .query-field .date-range {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .org-apply-list-query .query-field .date-range input {
+    flex: 1;
+  }
+  .org-apply-list-query .query-field .date-range span {
+    color: var(--text-light);
+    font-size: 12px;
+  }
+  .org-apply-list-query-btns {
+    grid-column: 1 / -1;
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+  }
+  .org-apply-list-query-btns .btn-query {
+    padding: 6px 20px;
+    border: none;
+    border-radius: 4px;
+    background: var(--primary);
+    color: #fff;
+    font-size: 13px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    transition: background .15s;
+  }
+  .org-apply-list-query-btns .btn-query:hover { background: var(--primary-dark); }
+  .org-apply-list-query-btns .btn-query svg { width: 14px; height: 14px; }
+  .org-apply-list-query-btns .btn-reset {
+    padding: 6px 20px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: #fff;
+    color: #666;
+    font-size: 13px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    transition: all .15s;
+  }
+  .org-apply-list-query-btns .btn-reset:hover { border-color: var(--primary); color: var(--primary); }
+  .org-apply-list-query-btns .btn-reset svg { width: 14px; height: 14px; }
+  .org-apply-list-toolbar {
+    display: flex;
+    justify-content: flex-end;
+    padding: 8px 20px 0;
+    flex-shrink: 0;
+  }
+  .org-apply-list-toolbar .btn-add {
+    padding: 7px 18px;
+    border: none;
+    border-radius: 4px;
+    background: var(--primary);
+    color: #fff;
+    font-size: 13px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: background .15s;
+  }
+  .org-apply-list-toolbar .btn-add:hover { background: var(--primary-dark); }
+  .org-apply-list-toolbar .btn-add svg { width: 14px; height: 14px; }
+  .org-apply-list-table { width: 100%; border-collapse: collapse; font-size: 13px; table-layout: fixed; }
+  .org-apply-list-table thead th { background: #f7f8fc; color: #666; font-weight: 500; padding: 8px 10px; text-align: left; border-bottom: 1px solid var(--border); white-space: nowrap; position: sticky; top: 0; z-index: 10; }
+  .org-apply-list-table thead th:not(:last-child)::after { content: " | "; color: #d0d5dd; margin-left: 8px; font-weight: 100; }
+  .org-apply-list-table tbody td { padding: 8px 10px; color: #333; white-space: nowrap; }
+  .org-apply-list-table tbody tr:nth-child(odd) { background: #fff; }
+  .org-apply-list-table tbody tr:nth-child(even) { background: #f7f8fc; }
+  .org-apply-list-table tbody tr:hover { background: #e8f3ff; }
+  .org-apply-list-table .link-title { color: var(--primary); cursor: pointer; }
+  .org-apply-list-table .link-title:hover { text-decoration: underline; }
+  .org-apply-list-table .col-seq { position: sticky; left: 0; z-index: 5; background: inherit; border-right: 1px solid #e8eaed; }
+  .org-apply-list-table .col-title { position: sticky; left: 50px; z-index: 5; background: inherit; }
+  .org-apply-list-table .col-name { position: sticky; left: 200px; z-index: 5; background: inherit; }
+  .org-apply-list-table .col-empno { position: sticky; left: 330px; z-index: 5; background: inherit; }
+  .org-apply-list-table thead th.col-seq { z-index: 15; }
+  .org-apply-list-table thead th.col-title { z-index: 15; }
+  .org-apply-list-table thead th.col-name { z-index: 15; }
+  .org-apply-list-table thead th.col-empno { z-index: 15; }
+  .org-apply-list-table .col-op { border-left: 1px solid #d0d5dd; position: sticky; right: 0; background: inherit; z-index: 5; }
+  .org-apply-list-table thead th.col-op { z-index: 15; }
+  .org-apply-list-table .op-divider { width: 1px; height: 100%; background: #d0d5dd; position: absolute; left: 0; top: 0; }
+  .org-apply-list-table-wrap { flex: 1; overflow: auto; padding: 8px 20px 8px; }
+
+  .org-apply-list-empty {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-light);
+    font-size: 14px;
+  }
+  .org-apply-list-empty .empty-icon {
+    font-size: 40px;
+    margin-bottom: 12px;
+    opacity: 0.3;
+  }
+  .org-apply-list-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    padding: 8px 20px;
+    border-top: 1px solid var(--border);
+    font-size: 13px;
+    color: #666;
+    flex-shrink: 0;
+  }
+  .org-apply-list-pagination .page-btn {
+    min-width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    cursor: pointer;
+    background: #fff;
+    transition: all .15s;
+  }
+  .org-apply-list-pagination .page-btn:hover { border-color: var(--primary); color: var(--primary); }
+  .org-apply-list-pagination .page-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+  .org-apply-list-pagination .page-size {
+    padding: 4px 8px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    font-size: 13px;
+    outline: none;
+    cursor: pointer;
+  }
+  .org-apply-list-pagination .jump-to {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  
+  /* ===== Tree Select ===== */
+  .tree-select {
+    position: relative;
+    width: 280px;
+    cursor: pointer;
+  }
+  .tree-select input {
+    width: 100%;
+    padding: 6px 30px 6px 10px !important;
+    cursor: pointer;
+    background: #fff;
+  }
+  .tree-select .tree-icon {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 14px;
+    height: 14px;
+    color: #999;
+    pointer-events: none;
+  }
+  .tree-select-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+    z-index: 50;
+    display: none;
+    max-height: 260px;
+    overflow-y: auto;
+    padding: 4px 0;
+    margin-top: 2px;
+  }
+  .tree-select-dropdown.show { display: block; }
+  .tree-node-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 14px;
+    font-size: 13px;
+    color: #333;
+    cursor: pointer;
+    transition: background .15s;
+  }
+  .tree-node-row:hover { background: #f5f6fa; }
+  .tree-node-row.sub { padding-left: 38px; }
+  .tree-arrow {
+    font-size: 10px;
+    color: #999;
+    width: 14px;
+    text-align: center;
+    flex-shrink: 0;
+    transition: transform .2s;
+  }
+  .tree-arrow.expanded { transform: rotate(90deg); }
+  .tree-children { display: none; }
+  .tree-children.expanded { display: block; }
+  .merged-date-range {
+    width: 280px;
+  }
+  .merged-date-range .date-picker-input {
+    width: 100%;
+  }
+  .org-apply-list-pagination .jump-to input {
+    width: 40px;
+    padding: 4px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    text-align: center;
+    font-size: 13px;
+  }
+  .org-apply-page {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    background: #fff;
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  .org-apply-banner {
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 13px;
+    color: #333;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+  .org-apply-banner .left { color: #555; }
+  .org-apply-banner .left .name { color: var(--primary); font-weight: 600; }
+  .org-apply-banner .right { display: flex; align-items: center; gap: 16px; color: var(--text-secondary); }
+  .org-apply-banner .right svg { width: 16px; height: 16px; }
+  .org-apply-tabs {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    padding: 0 20px;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+  .org-apply-tab {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    height: 38px;
+    cursor: pointer;
+    font-size: 13px;
+    color: #666;
+    border-bottom: 2px solid transparent;
+    transition: all .15s;
+    user-select: none;
+    position: relative;
+  }
+  .org-apply-tab:hover { color: var(--primary); }
+  .org-apply-tab.active { color: var(--primary); font-weight: 600; border-bottom-color: var(--primary); }
+  .org-apply-tab .arrow-down {
+    display: flex; align-items: center; color: var(--text-light);
+  }
+  .org-apply-tab .arrow-down svg { width: 12px; height: 12px; }
+  .org-apply-tip {
+    margin: 12px 20px 0;
+    padding: 8px 14px;
+    background: #e6f4ff;
+    border-radius: 6px;
+    font-size: 12px;
+    color: #555;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+  .org-apply-tip .tip-icon {
+    width: 16px; height: 16px; border-radius: 50%;
+    background: #1677ff; color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px; flex-shrink: 0;
+  }
+  .org-apply-tip .tip-link { color: var(--primary); cursor: pointer; }
+  .org-apply-tip .tip-link:hover { text-decoration: underline; }
+  .org-apply-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .org-apply-query {
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 14px;
+    flex-shrink: 0;
+  }
+  .org-apply-query .query-field {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .org-apply-query .query-field label {
+    font-size: 13px;
+    color: #333;
+    white-space: nowrap;
+  }
+  .org-apply-query .query-field input,
+  .org-apply-query .query-field select {
+    width: 180px;
+    padding: 6px 10px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-size: 13px;
+    outline: none;
+    background: #fff;
+    color: #333;
+    transition: border-color .2s;
+  }
+  .org-apply-query .query-field input:focus,
+  .org-apply-query .query-field select:focus { border-color: var(--primary); }
+  .org-apply-query .status-chips { display: flex; gap: 4px; }
+  .org-apply-query .status-chip {
+    padding: 4px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    color: #666;
+    cursor: pointer;
+    transition: all .15s;
+    border: 1px solid transparent;
+  }
+  .org-apply-query .status-chip:hover { background: #f0f2f5; }
+  .org-apply-query .status-chip.active {
+    background: var(--primary-light);
+    color: var(--primary);
+    font-weight: 600;
+  }
+  .org-apply-query .query-btns {
+    display: flex;
+    gap: 8px;
+    margin-left: auto;
+  }
+  .org-apply-query .btn-reset {
+    padding: 6px 16px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: #fff;
+    color: #666;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all .15s;
+  }
+  .org-apply-query .btn-reset:hover { border-color: var(--primary); color: var(--primary); }
+  .org-apply-query .btn-query {
+    padding: 6px 16px;
+    border: none;
+    border-radius: 6px;
+    background: var(--primary);
+    color: #fff;
+    font-size: 13px;
+    cursor: pointer;
+    transition: background .15s;
+  }
+  .org-apply-query .btn-query:hover { background: var(--primary-dark); }
+  .org-apply-query .btn-add {
+    padding: 6px 16px;
+    border: none;
+    border-radius: 6px;
+    background: var(--primary);
+    color: #fff;
+    font-size: 13px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    transition: background .15s;
+  }
+  .org-apply-query .btn-add:hover { background: var(--primary-dark); }
+  .org-apply-query .btn-add svg { width: 14px; height: 14px; }
+
+  .org-apply-table-wrap {
+    flex: 1;
+    overflow: auto;
+    padding: 0 20px 20px;
+  }
+  .org-apply-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  .org-apply-table thead th {
+    background: #f7f8fc;
+    color: #666;
+    font-weight: 500;
+    padding: 10px 12px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+  }
+  .org-apply-table tbody td {
+    padding: 10px 12px;
+    border-bottom: 1px solid #f0f2f5;
+    color: #333;
+  }
+  .org-apply-table tbody tr:hover { background: #fafbff; }
+  .org-apply-empty {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-light);
+    font-size: 14px;
+  }
+  
+
+  /* ===== Personnel Apply Page ===== */
+  .pa-table-wrap { background:#fff; }
+  .pa-table { width:100%; border-collapse:collapse; font-size:12px; }
+  .pa-table th { background:#fafafa; padding:8px 6px; font-weight:500; color:#666; text-align:left; border-bottom:1px solid #e8e8e8; white-space:nowrap; }
+  .pa-table td { padding:8px 6px; color:#333; border-bottom:1px solid #f5f5f5; }
+  .pa-data-table td, .pa-data-table th { border:none; }
+  .pa-resize-handle { display:inline-block; width:3px; height:14px; background:#d0d5dd; border-radius:1px; cursor:col-resize; vertical-align:middle; margin-right:4px; flex-shrink:0; position:relative; top:-1px; }
+  .pa-resize-handle:hover { background:#999; }
+  /* PA scroll area */
+  .pa-scroll-area { max-height:100%; overflow:auto; scrollbar-width:auto; }
+  .pa-scroll-area::-webkit-scrollbar { width:8px; height:8px; }
+  .pa-scroll-area::-webkit-scrollbar-track { background:#f1f1f1; border-radius:4px; }
+  .pa-scroll-area::-webkit-scrollbar-thumb { background:#c1c1c1; border-radius:4px; }
+  .pa-scroll-area::-webkit-scrollbar-thumb:hover { background:#a8a8a8; }
+  .pa-scroll-area::-webkit-scrollbar-button {
+    display:block; height:14px; width:14px; background:#e8eaed;
+    background-repeat:no-repeat; background-position:center;
+  }
+  .pa-scroll-area::-webkit-scrollbar-button:hover { background-color:#d0d5dd; }
+  .pa-scroll-area::-webkit-scrollbar-button:active { background-color:#b0b5c0; }
+  .pa-scroll-area::-webkit-scrollbar-button:vertical:decrement {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%278%27 height=%276%27 viewBox=%270 0 8 6%27%3E%3Cpath d=%27M4 0L8 6H0z%27 fill=%27%23666%27/%3E%3C/svg%3E");
+  }
+  .pa-scroll-area::-webkit-scrollbar-button:vertical:increment {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%278%27 height=%276%27 viewBox=%270 0 8 6%27%3E%3Cpath d=%27M0 0L8 0L4 6z%27 fill=%27%23666%27/%3E%3C/svg%3E");
+  }
+  .pa-scroll-area::-webkit-scrollbar-button:horizontal:decrement {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%276%27 height=%278%27 viewBox=%270 0 6 8%27%3E%3Cpath d=%27M6 0L0 4L6 8z%27 fill=%27%23666%27/%3E%3C/svg%3E");
+  }
+  .pa-scroll-area::-webkit-scrollbar-button:horizontal:increment {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%276%27 height=%278%27 viewBox=%270 0 6 8%27%3E%3Cpath d=%27M0 0L6 4L0 8z%27 fill=%27%23666%27/%3E%3C/svg%3E");
+  }
+  /* Settings column - sticky on right */
+  .pa-col-settings-header {
+    background:#fafafa; padding:5px 4px; font-weight:500; color:#666;
+    text-align:center; position:sticky; right:0; z-index:15;
+    width:60px; min-width:60px; font-size:12px; white-space:nowrap;
+    border-left:1px solid #e8eaed; box-shadow:-2px 0 4px rgba(0,0,0,0.05);
+  }
+  .pa-col-settings-cell {
+    padding:5px 4px; font-size:12px; color:#333;
+    text-align:center; position:sticky; right:0; z-index:3;
+    border-left:1px solid #eee;
+  }
+  .pa-col-settings-cell:hover { background:#e8f0fe; }
+  /* ===== Team Profile (团队档案) ===== */
+  .team-profile-page {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    background: #f0f2f5;
+    border-radius: 8px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 16px;
+  }
+  .tp-breadcrumb {
+    font-size: 12px;
+    color: #8a92a6;
+    padding: 12px 20px 0;
+    flex-shrink: 0;
+  }
+  .tp-header {
+    flex-shrink: 0;
+  }
+  .tp-header h2 {
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
+    margin: 0;
+    padding: 4px 20px 16px;
+  }
+  .tp-query {
+    padding: 10px 20px;
+    margin: 0 -12px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  }
+  .tp-scheme-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .tp-query-label {
+    font-size: 14px;
+    font-weight: 500;
+    color: #333;
+  }
+  .tp-toggle-advanced {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+    color: var(--primary);
+    font-size: 13px;
+    user-select: none;
+  }
+  .tp-toggle-advanced:hover { opacity: 0.8; }
+  .tp-toggle-advanced svg { transition: transform .2s; }
+  .tp-scheme-row .query-scheme-select {
+    width: 140px;
+    padding: 6px 10px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    font-size: 13px;
+    outline: none;
+    background: #fff;
+    color: #333;
+  }
+  .tp-query-fields {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px 20px;
+  }
+  .tp-query-fields .advanced-field { display: none; }
+  .tp-query-fields .advanced-field.visible { display: flex; }
+  .tp-query-fields .query-field input,
+  .tp-query-fields .query-field select,
+  .tp-query-fields .query-field .tree-select {
+    width: 100% !important;
+    box-sizing: border-box;
+  }
+  .tp-query .query-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .tp-query .query-field label {
+    font-size: 12px;
+    color: #666;
+    white-space: nowrap;
+  }
+  .tp-query .query-field input,
+  .tp-query .query-field select {
+    width: 100%;
+    padding: 6px 10px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    font-size: 13px;
+    outline: none;
+    background: #fff;
+    color: #333;
+    transition: border-color .2s;
+  }
+  .tp-query .query-field input:focus,
+  .tp-query .query-field select:focus { border-color: var(--primary); }
+  .tp-query .query-field .date-range {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .tp-query .query-field .date-range input { flex: 1; }
+  .tp-query .query-field .date-range span { color: var(--text-light); font-size: 12px; }
+  .tp-query-btns {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+  }
+  .tp-query-btns .btn-query {
+    padding: 6px 20px;
+    border: none;
+    border-radius: 4px;
+    background: var(--primary);
+    color: #fff;
+    font-size: 13px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    transition: background .15s;
+  }
+  .tp-query-btns .btn-query:hover { background: var(--primary-dark); }
+  .tp-query-btns .btn-query svg { width: 14px; height: 14px; }
+  .tp-query-btns .btn-reset {
+    padding: 6px 20px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: #fff;
+    color: #666;
+    font-size: 13px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    transition: all .15s;
+  }
+  .tp-query-btns .btn-reset:hover { border-color: var(--primary); color: var(--primary); }
+  .tp-query-btns .btn-reset svg { width: 14px; height: 14px; }
+  .tp-card-gap { height: 16px; flex-shrink: 0; }
+  .tp-toolbar {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    padding: 8px 20px 0;
+    flex-shrink: 0;
+  }
+  .tp-toolbar .btn-action {
+    padding: 6px 16px;
+    border: none;
+    border-radius: 4px;
+    background: var(--primary);
+    color: #fff;
+    font-size: 13px;
+    cursor: pointer;
+    transition: background .15s;
+    white-space: nowrap;
+  }
+  .tp-toolbar .btn-action:hover { background: var(--primary-dark); }
+  .tp-col-settings-btn {
+    display: flex; align-items: center; justify-content: center;
+    width: 28px; height: 28px;
+    cursor: pointer; color: #666;
+    transition: all .15s; border-radius: 4px;
+  }
+  .tp-col-settings-btn:hover { color: var(--primary); background: rgba(43,124,211,0.08); }
+  .col-settings-th {
+    position: sticky; right: 0; z-index: 12;
+    background: #f7f8fc; border-left: 1px solid #e8eaed;
+    padding: 0 !important; text-align: center; vertical-align: middle;
+  }
+  .tp-table thead th.col-settings-th { z-index: 25; background: #f7f8fc; }
+  .tp-table tbody tr:nth-child(odd) td.col-settings-td { background: #fff; }
+  .tp-table tbody tr:nth-child(even) td.col-settings-td { background: #f7f8fc; }
+  .tp-table tbody tr:hover td.col-settings-td { background: #e8f3ff; }
+  .col-settings-td {
+    position: sticky; right: 0; z-index: 5;
+    background: #f7f8fc; padding: 0 !important;
+  }
+  .tp-col-settings-dd {
+    display: none;
+    position: absolute; right: 0; top: 100%; z-index: 200;
+    background: #fff; border: 1px solid var(--border); border-radius: 6px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+    padding: 6px 0; min-width: 240px; max-height: 400px; overflow-y: auto;
+  }
+  .tp-col-settings-dd.show { display: block; }
+  .tpp-col-settings-dd {
+    display: none;
+    position: absolute; right: 0; top: 100%; z-index: 200;
+    background: #fff; border: 1px solid var(--border); border-radius: 6px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+    padding: 6px 0; min-width: 240px; max-height: 400px; overflow-y: auto;
+  }
+  .tpp-col-settings-dd.show { display: block; }
+  .tp-col-dd-item {
+    display: flex; align-items: center; gap: 8px;
+    padding: 7px 14px; cursor: pointer; font-size: 13px; color: #333;
+    user-select: none; transition: background .1s;
+  }
+  .tp-col-dd-item:hover { background: #f5f6fa; }
+  .tp-col-dd-check {
+    width: 16px; height: 16px;
+    border: 1px solid var(--border); border-radius: 3px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; background: #fff;
+  }
+  .tp-col-dd-check.checked { background: var(--primary); border-color: var(--primary); }
+  .tp-col-dd-check svg { display: none; }
+  .tp-col-dd-check.checked svg { display: block; color: #fff; stroke: #fff; }
+  .tp-table-wrap {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    overflow: hidden;
+    margin: 0 -12px;
+  }
+  .tp-table-scroll { flex: 1; overflow: auto; padding: 8px 0; }
+  .tp-table { width: 100%; border-collapse: collapse; font-size: 13px; table-layout: fixed; }
+  .tp-table thead th {
+    background: #f7f8fc; color: #666; font-weight: 500;
+    padding: 8px 10px; text-align: left;
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap; position: sticky; top: 0; z-index: 10;
+  }
+  .tp-table tbody td { padding: 8px 10px; color: #333; white-space: nowrap; }
+  .tp-table tbody tr:nth-child(odd) { background: #fff; }
+  .tp-table tbody tr:nth-child(even) { background: #f7f8fc; }
+  .tp-table tbody tr:hover { background: #e8f3ff; }
+  .tp-table .link-title { color: var(--primary); cursor: pointer; }
+  .tp-table .link-title:hover { text-decoration: underline; }
+  .tp-table .col-seq {
+    position: sticky; left: 0; z-index: 5;
+    background: #f7f8fc; border-right: 1px solid #e8eaed;
+  }
+  .tp-table thead th.col-seq { z-index: 15; }
+  .tp-table tbody tr:nth-child(odd) td.col-seq { background: #fff; }
+  .tp-table tbody tr:nth-child(even) td.col-seq { background: #f7f8fc; }
+  .tp-table tbody tr:hover td.col-seq { background: #e8f3ff; }
+  .tp-table .col-op {
+    position: sticky; right: 40px; z-index: 12;
+    background: #f7f8fc; border-left: 2px solid #d0d5dd;
+  }
+  .tp-table thead th.col-op { z-index: 25; background: #f7f8fc; }
+  .tp-table tbody tr:nth-child(odd) td.col-op { background: #fff; }
+  .tp-table tbody tr:nth-child(even) td.col-op { background: #f7f8fc; }
+  .tp-table tbody tr:hover td.col-op { background: #e8f3ff; }
+  .tp-drag-handle {
+    position: absolute; right: 0; top: 8px; bottom: 8px;
+    width: 1px; background: #d0d5dd;
+    cursor: col-resize; z-index: 2;
+  }
+  .tp-drag-handle:hover,
+  .tp-drag-handle.active { background: var(--primary); width: 3px; right: -1px; }
+  .tp-status-tag {
+    display: inline-block;
+    padding: 1px 8px;
+    border-radius: 10px;
+    font-size: 12px;
+    line-height: 20px;
+  }
+  .tp-status-tag.active { background: #f0fff0; color: #52c41a; }
+  .tp-status-tag.probation { background: #fff7e6; color: #fa8c16; }
+  .tp-status-tag.resigned { background: #fff1f0; color: #ff4d4f; }
+  .tp-status-tag.approved { background: #f0fff0; color: #52c41a; }
+  .tp-status-tag.pending { background: #fff7e6; color: #fa8c16; }
+  .tp-status-tag.rejected { background: #fff1f0; color: #ff4d4f; }
+  .tp-status-tag.none { background: #f5f5f5; color: #999; }
+  .tp-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    padding: 8px 20px;
+    border-top: 1px solid var(--border);
+    font-size: 13px;
+    color: #666;
+    flex-shrink: 0;
+  }
+  .tp-pagination .page-btn {
+    min-width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    cursor: pointer;
+    background: #fff;
+    transition: all .15s;
+  }
+  .tp-pagination .page-btn:hover { border-color: var(--primary); color: var(--primary); }
+  .tp-pagination .page-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+  .tp-pagination .page-size {
+    padding: 4px 8px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    font-size: 13px;
+    outline: none;
+    cursor: pointer;
+  }
+  .tp-pagination .jump-to {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .tp-pagination .jump-to input {
+    width: 40px;
+    padding: 4px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    text-align: center;
+    font-size: 13px;
+  }
+  .tp-member-name { display: flex; align-items: center; gap: 6px; }
+  .tp-avatar-sm {
+    width: 24px; height: 24px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 11px; font-weight: 500; flex-shrink: 0;
+  }
+  /* ===== Initiate Process Page ===== */
+  .initiate-process-page {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    background: #fff;
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  .ip-header {
+    padding: 16px 24px;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+  .ip-header h2 {
+    font-size: 16px;
+    font-weight: 600;
+    color: #1a1a1a;
+  }
+  .ip-header p {
+    font-size: 13px;
+    color: #8a92a6;
+    margin-top: 4px;
+  }
+  .ip-search {
+    padding: 14px 24px;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+  .ip-search input {
+    width: 360px;
+    padding: 8px 14px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-size: 13px;
+    outline: none;
+    background: #f7f8fc;
+    transition: all .2s;
+  }
+  .ip-search input:focus { border-color: var(--primary); background: #fff; }
+  .ip-categories {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px 24px 24px;
+  }
+  .ip-category {
+    margin-bottom: 28px;
+  }
+  .ip-category:last-child { margin-bottom: 0; }
+  .ip-category-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .ip-category-title .ip-cat-icon {
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    color: #fff;
+    flex-shrink: 0;
+  }
+  .ip-process-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+    gap: 10px;
+  }
+  .ip-process-card {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 14px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all .2s;
+    background: #fafbff;
+  }
+  .ip-process-card:hover {
+    border-color: var(--primary);
+    box-shadow: 0 2px 8px rgba(91,106,250,0.08);
+    background: #f0f2ff;
+  }
+  .ip-process-card .proc-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+  .ip-process-card .proc-info {
+    flex: 1;
+    min-width: 0;
+  }
+  .ip-process-card .proc-name {
+    font-size: 13px;
+    font-weight: 500;
+    color: #333;
+  }
+  .ip-process-card .proc-desc {
+    font-size: 11px;
+    color: #999;
+    margin-top: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .org-apply-empty .empty-icon {
+    font-size: 40px;
+    margin-bottom: 12px;
+    opacity: 0.3;
+  }
+
+  /* ===== Placeholder Page ===== */
+  .placeholder-page {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: var(--text-secondary);
+  }
+  .placeholder-page .ph-icon {
+    font-size: 48px;
+    margin-bottom: 16px;
+    opacity: 0.4;
+  }
+  .placeholder-page .ph-text {
+    font-size: 16px;
+    color: var(--text-light);
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-thumb { background: #d0d5dd; border-radius: 3px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+
+  .query-header-row { grid-column: 1 / -1; display: flex; align-items: center; gap: 12px; padding: 4px 0 8px; margin-bottom: 4px; }
+    .query-header-label { font-size: 15pt; font-weight: 600; color: #333; white-space: nowrap; }
+  .query-header-right { display: flex; align-items: center; gap: 8px; }
+  .query-header-right .query-scheme-select { padding: 4px 10px; border: 1px solid var(--border); border-radius: 4px; font-size: 13px; outline: none; background: #fff; color: #333; cursor: pointer; }
+  .query-header-right .icon-btn { width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; border-radius: 4px; cursor: pointer; color: var(--text-secondary); transition: all .15s; }
+  .query-header-right .icon-btn:hover { background: var(--primary-light); color: var(--primary); }
+  .multi-select { position: relative; width: 100%; }
+  .multi-select-trigger { display: flex; align-items: center; gap: 4px; min-height: 32px; padding: 3px 8px; border: 1px solid var(--border); border-radius: 6px; background: #fff; cursor: pointer; transition: border-color .2s; overflow-x: auto; flex-wrap: nowrap; }
+  .multi-select-trigger:hover { border-color: var(--primary); }
+  .multi-select-tags { display: flex; flex-wrap: nowrap; gap: 4px; flex: 1; overflow-x: auto; }
+  .multi-select-tag { display: inline-flex; align-items: center; gap: 4px; padding: 1px 6px; background: var(--primary-light); color: var(--primary); border-radius: 3px; font-size: 12px; line-height: 1.6; }
+  .multi-select-tag .tag-close { cursor: pointer; font-size: 14px; line-height: 1; color: var(--primary); display: flex; align-items: center; }
+  .multi-select-tag .tag-close:hover { color: var(--red); }
+  .multi-select-search { flex: 1; min-width: 60px; border: none !important; outline: none !important; padding: 0 !important; font-size: 13px; background: transparent !important; width: auto !important; cursor: pointer; text-align: left; }
+  .multi-select-arrow { width: 14px; height: 14px; color: #999; flex-shrink: 0; }
+  .multi-select-dropdown { position: absolute; top: 100%; left: 0; right: 0; background: #fff; border: 1px solid var(--border); border-radius: 4px; box-shadow: 0 4px 16px rgba(0,0,0,0.1); z-index: 50; display: none; padding: 2px 0; margin-top: 2px; max-height: 200px; overflow-y: auto; }
+  .multi-select-dropdown.show { display: block; }
+  .multi-select-option { display: flex; align-items: center; gap: 8px; padding: 6px 12px; font-size: 13px; color: #333; cursor: pointer; transition: background .15s; }
+  .multi-select-option:hover { background: #f5f6fa; }
+  .multi-select-option input[type="checkbox"] { margin: 0; }
+  .advanced-filter-row { grid-column: 1 / -1; display: flex; justify-content: flex-start; padding: 2px 0; }
+  .advanced-filter-link { font-size: 13px; color: var(--primary); cursor: pointer; user-select: none; }
+  .advanced-filter-link:hover { text-decoration: underline; }
+  .advanced-field { display: none; }
+  .advanced-field.visible { display: flex; }
+
+/* Export settings modal */
+.export-modal-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.45);z-index:10000;justify-content:center;align-items:center;}
+.export-modal-overlay.show{display:flex;}
+.export-modal{background:#fff;border-radius:8px;width:750px;max-height:80vh;display:flex;flex-direction:column;box-shadow:0 8px 30px rgba(0,0,0,0.15);}
+.export-modal-header{display:flex;justify-content:space-between;align-items:center;padding:16px 24px;border-bottom:1px solid #f0f0f0;}
+.export-modal-header h3{margin:0;font-size:16px;font-weight:600;}
+.export-modal-close{cursor:pointer;font-size:20px;color:#999;border:none;background:none;padding:0;line-height:1;}
+.export-modal-close:hover{color:#333;}
+.export-modal-body{flex:1;overflow:auto;padding:20px 24px;display:flex;align-items:stretch;gap:0;}
+.export-field-card{flex:1;border:1px solid #e8eaed;border-radius:6px;display:flex;flex-direction:column;}
+.export-field-card-header{padding:10px 14px;font-weight:600;font-size:14px;border-bottom:1px solid #f0f0f0;background:#fafafa;border-radius:6px 6px 0 0;}
+.export-field-card-body{flex:1;overflow:auto;padding:8px 0;min-height:200px;max-height:350px;}
+.export-field-item{display:flex;align-items:center;padding:8px 14px;cursor:pointer;font-size:13px;transition:background 0.15s;user-select:none;}
+.export-field-item:hover{background:#f5f7fa;}
+.export-field-item.selected{background:#e6f7ff;}
+.export-field-item .field-check{width:16px;height:16px;border:1px solid #d9d9d9;border-radius:2px;margin-right:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.export-field-item.selected .field-check{background:var(--primary);border-color:var(--primary);}
+.export-field-item.selected .field-check:after{content:'';width:5px;height:8px;border:solid #fff;border-width:0 2px 2px 0;transform:rotate(45deg);margin-top:-2px;}
+.export-arrows{display:flex;flex-direction:column;justify-content:center;align-items:center;gap:8px;padding:0 12px;flex-shrink:0;}
+.export-arrow-btn{width:32px;height:32px;border:1px solid #d9d9d9;border-radius:4px;background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;color:#666;transition:all 0.15s;}
+.export-arrow-btn:hover{border-color:var(--primary);color:var(--primary);}
+.export-modal-footer{display:flex;justify-content:flex-end;gap:8px;padding:12px 24px;border-top:1px solid #f0f0f0;}
+.export-modal-footer button{padding:6px 20px;border-radius:4px;font-size:13px;cursor:pointer;}
+.export-btn-cancel{border:1px solid #d9d9d9;background:#fff;color:#333;}
+.export-btn-cancel:hover{border-color:var(--primary);color:var(--primary);}
+.export-btn-confirm{border:none;background:var(--primary);color:#fff;}
+.export-btn-confirm:hover{opacity:0.85;}
+</style>
+</head>
+<body>
+
+<!-- ===== Top Navigation Bar ===== -->
+<div class="top-nav">
+  <div class="nav-left">
+    <span class="logo">HRONE</span>
+    <div class="home-icon" title="首页">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1V9.5z"/>
+      </svg>
+    </div>
+    <div class="all-menu-btn" id="allMenuBtn">
+      <div class="grid-icon">
+        <span></span><span></span><span></span><span></span>
+      </div>
+      <span>全部菜单</span>
+    </div>
+  </div>
+  <div class="nav-right">
+    <div class="nav-icon" title="搜索">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>
+      </svg>
+    </div>
+    <div class="nav-icon" title="语言">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/>
+      </svg>
+    </div>
+    <div class="nav-icon" title="消息">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+        <path d="M13.7 21a2 2 0 0 1-3.4 0"/>
+      </svg>
+      <span class="badge">26</span>
+    </div>
+    <div class="nav-icon" title="通知">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+        <path d="M13.7 21a2 2 0 0 1-3.4 0"/>
+      </svg>
+      <span class="badge">2</span>
+    </div>
+    <div class="nav-avatar">
+      <div class="avatar-circle">黄</div>
+      <span class="user-name">黄东升</span>
+    </div>
+  </div>
+
+  <!-- All Menu Dropdown -->
+  <div class="all-menu-dropdown" id="allMenuDropdown">
+    <!-- Populated by JS -->
+  </div>
+</div>
+
+<!-- ===== Main Layout ===== -->
+<div class="main-layout">
+  <!-- Sidebar -->
+  <div class="sidebar" id="sidebar">
+    <!-- Populated by JS -->
+  </div>
+
+  <!-- Right: Tabs + Content -->
+  <div class="right-panel">
+    <!-- Tab Bar -->
+    <div class="tab-bar" id="tabBar">
+      <!-- Populated by JS -->
+    </div>
+
+    <!-- Content Area -->
+    <div class="content-area" id="contentArea">
+      <!-- Populated by JS -->
+    </div>
+  </div>
+</div>
+
+<script>
+// ===== Data =====
+const allMenuData = [
+  {
+    name: "工作台", icon: "▦", color: "#5b6afa",
+    children: [
+      { name: "首页", count: 0 },
+      { name: "审批通知中心", count: 4 },
+      { name: "我的假勤", count: 1 },
+      { name: "我的团队", count: 2 },
+      { name: "我的人事", count: 2 },
+    ]
+  },
+  {
+    name: "招聘管理", icon: "👥", color: "#4ecdc4",
+    children: [{ name: "招聘工作台", count: 2 }]
+  },
+  {
+    name: "组织编制管理", icon: "⚙", color: "#ff6b6b",
+    children: [
+      { name: "组织管理", count: 16 },
+      { name: "职位管理", count: 5 },
+      { name: "编制管理", count: 4 },
+      { name: "预算管理", count: 8 },
+    ]
+  },
+  {
+    name: "人事管理", icon: "👤", color: "#ffd93d",
+    children: [
+      { name: "员工管理", count: 1 },
+      { name: "任职管理", count: 4 },
+      { name: "合同协议管理", count: 7 },
+    ]
+  },
+  {
+    name: "薪酬管理", icon: "💰", color: "#6c8ce0",
+    children: [
+      { name: "成本数据提报", count: 6 },
+      { name: "成本活动", count: 0 },
+      { name: "成本报表", count: 3 },
+      { name: "薪酬配置", count: 1 },
+    ]
+  },
+  {
+    name: "假勤管理", icon: "📅", color: "#52c41a",
+    children: [
+      { name: "排班管理", count: 0 },
+      { name: "考勤配置", count: 4 },
+      { name: "考勤统计", count: 2 },
+      { name: "假勤流程", count: 1 },
+      { name: "考勤核算", count: 1 },
+    ]
+  },
+  {
+    name: "流程管理", icon: "🔄", color: "#ff9f43",
+    children: [{ name: "流程查询", count: 2 }]
+  },
+  {
+    name: "绩效管理", icon: "📊", color: "#9b59b6",
+    children: [{ name: "绩效配置", count: 8 }]
+  },
+];
+
+// Sidebar modules — each module shows different sidebar items
+const sidebarModules = {
+  "工作台": [
+    { name: "首页", isLeaf: true, count: 0 },
+    {
+      name: "审批通知中心", count: 4,
+      children: [
+        { name: "我的待办", count: 26 },
+        { name: "我的审批", count: 0 },
+        { name: "我的申请", count: 0 },
+        { name: "我的通知", count: 2 },
+        { name: "发起流程", count: 0 },
+      { name: "发起流程", count: 0 },
+      ]
+    },
+    { name: "我的假勤", count: 1, isLeaf: false, children: [] },
+    { name: "我的团队", count: 2, isLeaf: false, children: [{ name: "团队档案", count: 0 }] },
+    {
+      name: "我的人事", count: 2,
+      children: [
+        { name: "我的档案", count: 0 },
+        { name: "人事申请", count: 0 },
+      ]
+    },
+  ],
+  "组织管理": [
+    { name: "工作台", isLeaf: true, count: 0 },
+    { name: "员工自助", count: 0, isLeaf: false, children: [] },
+    {
+      name: "组织管理", count: 0, expanded: true,
+      children: [
+        { name: "组织明细", count: 16 },
+        { name: "组织架构", count: 5 },
+        { name: "组织变更记录", count: 4 },
+        { name: "运营部的组织架构调整申请", count: 0 },
+        { name: "组织调整方案", count: 0 },
+        { name: "法人公司", count: 8 },
+      ]
+    },
+    { name: "职位管理", count: 5, isLeaf: false, children: [] },
+    { name: "人事管理", count: 0, isLeaf: false, children: [{ name: "任职管理", count: 0, children: [{ name: "晋升见习转正", count: 0 }] }] },
+    { name: "流程管理", count: 2, isLeaf: false, children: [] },
+    { name: "基础配置", count: 0, isLeaf: false, children: [] },
+  ],
+  "人事管理": [
+    { name: "员工管理", count: 1, isLeaf: false, children: [] },
+    {
+      name: "任职管理", count: 4, expanded: true,
+      children: [
+        { name: "入职", count: 0 },
+        { name: "转正", count: 0 },
+        { name: "调动", count: 0 },
+        { name: "离职", count: 0 },
+        { name: "晋升见习转正", count: 0 },
+        { name: "任职记录", count: 0 },
+      ]
+    },
+    { name: "合同协议管理", count: 7, isLeaf: false, children: [] },
+  ],
+};
+
+// Pending task data
+const pendingTasks = [
+  { avatar: "W", color: "#5b6afa", title: "黄东升 111 提交的 陈攀的调动申请", time: "2026年07月07日 15:49" },
+  { avatar: "W", color: "#5b6afa", title: "你好，你有被驳回的 测试5的转正申请，请处理", time: "2026年06月24日 15:11" },
+  { avatar: "黄", color: "#ff9f43", title: "黄东升 提交的 伏雨欣的调动申请", time: "2026年07月07日 14:30" },
+  { avatar: "G", color: "#4ecdc4", title: "罗小毅 提交的 徐新丹的转正申请", time: "2026年07月06日 10:22" },
+  { avatar: "陈", color: "#6c8ce0", title: "陈致浩 提交的 请假申请", time: "2026年07月05日 16:45" },
+  { avatar: "W", color: "#5b6afa", title: "系统提醒：你有3条待审批的合同签订申请", time: "2026年07月04日 09:15" },
+  { avatar: "L", color: "#52c41a", title: "罗小毅 提交的 预算调整申请", time: "2026年07月03日 11:08" },
+  { avatar: "黄", color: "#ff9f43", title: "黄东升 提交的 加班申请", time: "2026年07月02日 17:30" },
+];
+
+const filterTabs = [
+  { name: "全部", count: 26, active: true },
+  { name: "组织", count: 0 },
+  { name: "招聘", count: 0 },
+  { name: "人事", count: 26 },
+  { name: "考勤", count: 0 },
+  { name: "绩效", count: 0 },
+  { name: "薪酬", count: 0 },
+  { name: "转正", count: 0 },
+];
+
+// ===== State =====
+let openTabs = [{ id: "workbench", name: "工作台", type: "workbench", closable: false }];
+let activeTabId = "workbench";
+let tabCounter = 0;
+let currentSidebarModule = "工作台";
+
+// ===== Render All Menu Dropdown =====
+function renderAllMenuDropdown() {
+  const el = document.getElementById("allMenuDropdown");
+  const inner = allMenuData.map(cat => `
+    <div class="menu-category">
+      <div class="menu-category-title">
+        <span class="cat-icon" style="background:${cat.color}">${cat.icon}</span>
+        ${cat.name}
+      </div>
+      <div class="menu-sub-items">
+        ${cat.children.map(sub => `
+          <div class="menu-sub-item" onclick="addMenuFromAllMenu('${cat.name}', '${sub.name}')">
+            <span>${sub.name}</span>
+            <span class="count">${sub.count}</span>
+          </div>
+        `).join("")}
+      </div>
+    </div>
+  `).join("");
+  el.innerHTML = `<div class="all-menu-content" onclick="event.stopPropagation()">${inner}</div>`;
+}
+
+// ===== Render Sidebar =====
+function renderSidebar() {
+  const el = document.getElementById("sidebar");
+  const sidebarData = sidebarModules[currentSidebarModule] || [];
+  el.innerHTML = sidebarData.map((item, idx) => {
+    if (item.isLeaf) {
+      return `
+        <div class="sidebar-item">
+          <div class="menu-label leaf ${idx === 0 ? 'active' : ''}" onclick="sidebarItemClick('${item.name}', ${idx})">
+            <span class="dot-l1"></span>
+            <span>${item.name}</span>
+            <div class="menu-right">
+              ${item.count > 0 ? `<span class="count">${item.count}</span>` : ''}
+            </div>
+          </div>
+        </div>
+      `;
+    }
+    const expanded = item.expanded ? 'expanded' : '';
+    return `
+      <div class="sidebar-item ${expanded}" id="sidebar-item-${idx}">
+        <div class="menu-label parent" onclick="toggleSidebar(${idx})">
+          <span class="dot-l1"></span>
+          <span>${item.name}</span>
+          <div class="menu-right">
+            ${item.count > 0 ? `<span class="count">${item.count}</span>` : ''}
+            <span class="arrow">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="9 6 15 12 9 18"/>
+              </svg>
+            </span>
+          </div>
+        </div>
+        <div class="sidebar-sub">
+          ${item.children.map(child => `
+            <div class="sidebar-sub-item" onclick="sidebarSubClick('${child.name}')">
+              <span class="dot-l2"></span>
+              <span>${child.name}</span>
+              ${child.isNew ? '<span class="new-tag">NEW</span>' : ''}
+              ${child.count > 0 ? `<span class="count">${child.count}</span>` : ''}
+            </div>
+          `).join("")}
+        </div>
+      </div>
+    `;
+  }).join("");
+}
+
+function toggleSidebar(idx) {
+  const el = document.getElementById(`sidebar-item-${idx}`);
+  if (el) el.classList.toggle("expanded");
+  // Clear other active states, set this parent active
+  document.querySelectorAll(".sidebar-item .menu-label").forEach(e => e.classList.remove("active"));
+  document.querySelectorAll(".sidebar-sub-item").forEach(e => e.classList.remove("active"));
+  const labelEl = el ? el.querySelector(".menu-label") : null;
+  if (labelEl) labelEl.classList.add("active");
+  // 若无子菜单，则打开占位 Tab
+  const sidebarData = sidebarModules[currentSidebarModule] || [];
+  const item = sidebarData[idx];
+  if (item && (!item.children || item.children.length === 0)) {
+    openOrSwitchTab(item.name, "placeholder");
+  }
+}
+
+function sidebarItemClick(name, idx) {
+  document.querySelectorAll(".sidebar-item .menu-label").forEach(e => e.classList.remove("active"));
+  document.querySelectorAll(".sidebar-sub-item").forEach(e => e.classList.remove("active"));
+  event.currentTarget.classList.add("active");
+  // 首页 or 工作台 leaf → show workbench
+  if (name === "首页" || name === "工作台") {
+    // Switch to 工作台 module if not already
+    if (currentSidebarModule !== "工作台") {
+      currentSidebarModule = "工作台";
+      renderSidebar();
+    }
+    activeTabId = "workbench";
+    renderTabs();
+    renderContent();
+    return;
+  }
+  openOrSwitchTab(name, "placeholder");
+}
+
+function sidebarSubClick(name) {
+  document.querySelectorAll(".sidebar-item .menu-label").forEach(e => e.classList.remove("active"));
+  document.querySelectorAll(".sidebar-sub-item").forEach(e => e.classList.remove("active"));
+  event.currentTarget.classList.add("active");
+  // 组织架构调整申请 → org-apply page（参考截图：调动流程风格）
+  // 组织调整方案 → 内容待开发，与其他页面一致
+  // 其它子菜单 → placeholder
+  let tabType = "placeholder";
+  if (name === "组织架构调整申请") tabType = "org-apply";
+  else if (name === "人事申请") tabType = "personnel-apply";
+  else if (name === "团队档案") tabType = "team-profile";
+  else if (name === "晋升见习转正") tabType = "trial-period-process";
+  else if (name === "转正") tabType = "trial-period-process";
+  openOrSwitchTab(name, tabType);
+}
+
+function addMenuFromAllMenu(catName, subName) {
+  document.getElementById("allMenuDropdown").classList.remove("show");
+  // Map all menu category to sidebar module
+  const moduleMap = {
+    "工作台": "工作台",
+    "组织编制管理": "组织管理",
+    "人事管理": "人事管理",
+  };
+  const sidebarModule = moduleMap[catName];
+  if (sidebarModule && sidebarModules[sidebarModule]) {
+    currentSidebarModule = sidebarModule;
+    renderSidebar();
+  }
+  // 首页 → show workbench
+  if (subName === "首页" || subName === "工作台") {
+    activeTabId = "workbench";
+    renderTabs();
+    renderContent();
+    return;
+  }
+  // 组织管理 → just switch sidebar, don't open tab (sidebar already expanded showing 组织架构调整申请)
+  if (subName === "组织管理") {
+    return;
+  }
+  // 任职管理 → just switch sidebar to 人事管理 module, don't open tab
+  if (subName === "任职管理") {
+    return;
+  }
+  // 组织架构调整申请 → org-apply page
+  let tabType = "placeholder";
+  if (subName === "组织架构调整申请") tabType = "org-apply";
+  openOrSwitchTab(subName, tabType);
+}
+
+// ===== Tab Management =====
+function openOrSwitchTab(name, type) {
+  const tabId = `tab-${type}`;
+  const existing = openTabs.find(t => t.id === tabId);
+  if (existing) {
+    activeTabId = tabId;
+  } else {
+    openTabs.push({ id: tabId, name, type, closable: true });
+    activeTabId = tabId;
+  }
+  renderTabs();
+  renderContent();
+}
+
+function closeTab(tabId) {
+  if (!openTabs.find(t => t.id === tabId)?.closable) return;
+  const idx = openTabs.findIndex(t => t.id === tabId);
+  openTabs.splice(idx, 1);
+  if (activeTabId === tabId) {
+    activeTabId = openTabs[Math.max(0, idx - 1)].id;
+    // If falling back to workbench, switch sidebar to 工作台 module
+    if (activeTabId === "workbench" && currentSidebarModule !== "工作台") {
+      currentSidebarModule = "工作台";
+      renderSidebar();
+    }
+  }
+  renderTabs();
+  renderContent();
+}
+
+function closeOthers() {
+  openTabs = openTabs.filter(t => !t.closable || t.id === activeTabId);
+  // If active tab is workbench, switch sidebar back to 工作台 module
+  if (activeTabId === "workbench" && currentSidebarModule !== "工作台") {
+    currentSidebarModule = "工作台";
+    renderSidebar();
+  }
+  renderTabs();
+  renderContent();
+  hideTabDropdown();
+}
+
+function closeAll() {
+  openTabs = openTabs.filter(t => !t.closable);
+  activeTabId = openTabs[0].id;
+  // Switch sidebar back to 工作台 module
+  if (currentSidebarModule !== "工作台") {
+    currentSidebarModule = "工作台";
+    renderSidebar();
+  }
+  renderTabs();
+  renderContent();
+  hideTabDropdown();
+}
+
+function switchTab(tabId) {
+  activeTabId = tabId;
+  renderTabs();
+  renderContent();
+}
+
+function renderTabs() {
+  const tabsHTML = openTabs.map(tab => `
+    <div class="tab-item ${tab.id === activeTabId ? 'active' : ''}" onclick="switchTab('${tab.id}')">
+      <span>${tab.name}</span>
+      ${tab.closable ? `<span class="tab-close" onclick="event.stopPropagation();closeTab('${tab.id}')">✕</span>` : ''}
+    </div>
+  `).join("");
+  const arrowHTML = `
+    <div class="tab-arrow" onclick="toggleTabDropdown(event)" id="tabArrow">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="6 9 12 15 18 9"/>
+      </svg>
+      <div class="tab-dropdown" id="tabDropdown">
+        <div class="tab-dropdown-item" onclick="closeOthers()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+          </svg>
+          关闭其它
+        </div>
+        <div class="tab-dropdown-item" onclick="closeAll()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="4" y="4" width="16" height="16" rx="2"/><line x1="9" y1="9" x2="15" y2="15"/><line x1="15" y1="9" x2="9" y2="15"/>
+          </svg>
+          关闭全部
+        </div>
+      </div>
+    </div>
+  `;
+  document.getElementById("tabBar").innerHTML = `<div class="tab-bar-scroll">${tabsHTML}</div>${arrowHTML}`;
+}
+
+function toggleTabDropdown(e) {
+  e.stopPropagation();
+  const dd = document.getElementById("tabDropdown");
+  dd.classList.toggle("show");
+}
+
+function hideTabDropdown() {
+  const dd = document.getElementById("tabDropdown");
+  if (dd) dd.classList.remove("show");
+}
+
+// ===== Content Rendering =====
+function renderContent() {
+  const el = document.getElementById("contentArea");
+  el.innerHTML = openTabs.map(tab => {
+    let inner = "";
+    if (tab.type === "workbench") inner = renderWorkbench();
+    else if (tab.type === "org-plan") inner = renderOrgAdjustmentPlan();
+    else if (tab.type === "org-apply") inner = renderOrgAdjustmentApply();
+    else if (tab.type === "initiate-process") inner = renderInitiateProcess();
+    else if (tab.type === "personnel-apply") inner = renderPersonnelApply();
+    else if (tab.type === "team-profile") inner = renderTeamProfile();
+    else if (tab.type === "promotion-probation") inner = renderPromotionProbation();
+    else if (tab.type === "promotion-form") inner = renderPromotionProbationForm();
+    else if (tab.type === "personnel-promotion-form") inner = renderPersonnelPromotionForm();
+    else if (tab.type === "appointment-promotion-form") inner = renderAppointmentPromotionForm();
+    else if (tab.type === "trial-period-process") inner = renderTrialPeriodProcess();
+    else inner = renderPlaceholder(tab.name);
+    return `<div class="tab-content ${tab.id === activeTabId ? 'active' : ''}" id="content-${tab.id}">${inner}</div>`;
+  }).join("");
+}
+
+
+function renderInitiateProcess() {
+  const categories = [
+    {
+      name: "人事流程", icon: "👤", color: "#5b6afa",
+      items: [
+        { name: "入职申请", desc: "新员工入职登记", icon: "📋", color: "#eef0ff", iconColor: "#5b6afa" },
+        { name: "离职申请", desc: "员工离职手续办理", icon: "🚪", color: "#fef0f0", iconColor: "#ff4d4f" },
+        { name: "转正申请", desc: "试用期员工转正", icon: "✅", color: "#f0fff0", iconColor: "#52c41a" },
+        { name: "调岗申请", desc: "员工岗位调整", icon: "🔄", color: "#fff7e6", iconColor: "#fa8c16" },
+        { name: "合同续签", desc: "劳动合同续签处理", icon: "📝", color: "#e6f7ff", iconColor: "#1890ff" },
+      ]
+    },
+    {
+      name: "考勤流程", icon: "⏰", color: "#fa8c16",
+      items: [
+        { name: "请假申请", desc: "年假/事假/病假申请", icon: "🏖", color: "#fff7e6", iconColor: "#fa8c16" },
+        { name: "加班申请", desc: "加班工时申报", icon: "🌙", color: "#f0f5ff", iconColor: "#2b7cd3" },
+        { name: "出差申请", desc: "出差行程与预算申请", icon: "✈️", color: "#e6fffb", iconColor: "#13c2c2" },
+        { name: "补卡申请", desc: "考勤异常补卡", icon: "💳", color: "#f9f0ff", iconColor: "#9b59b6" },
+        { name: "调休申请", desc: "加班调休安排", icon: "🕐", color: "#fff0f6", iconColor: "#eb2f96" },
+      ]
+    },
+    {
+      name: "薪酬流程", icon: "💰", color: "#52c41a",
+      items: [
+        { name: "调薪申请", desc: "员工薪资调整", icon: "📈", color: "#f0fff0", iconColor: "#52c41a" },
+        { name: "薪资补发", desc: "薪资补发申请", icon: "💵", color: "#f6ffed", iconColor: "#73d13d" },
+        { name: "奖金申请", desc: "绩效奖金申报", icon: "🏆", color: "#fffbe6", iconColor: "#fadb14" },
+        { name: "社保变更", desc: "社保基数调整", icon: "🛡", color: "#e6f7ff", iconColor: "#1890ff" },
+      ]
+    },
+    {
+      name: "行政流程", icon: "📎", color: "#2b7cd3",
+      items: [
+        { name: "办公用品申请", desc: "办公用品领用", icon: "🖊", color: "#f0f5ff", iconColor: "#2b7cd3" },
+        { name: "印章使用申请", desc: "公章/合同章使用", icon: "🔏", color: "#fff0f6", iconColor: "#eb2f96" },
+        { name: "车辆使用申请", desc: "公务用车申请", icon: "🚗", color: "#f6ffed", iconColor: "#52c41a" },
+        { name: "会议室预约", desc: "会议室预订", icon: "🏢", color: "#fff7e6", iconColor: "#fa8c16" },
+      ]
+    },
+    {
+      name: "财务流程", icon: "💹", color: "#ff4d4f",
+      items: [
+        { name: "报销申请", desc: "费用报销申报", icon: "🧾", color: "#fff1f0", iconColor: "#ff4d4f" },
+        { name: "借款申请", desc: "员工借款申请", icon: "🏦", color: "#fff7e6", iconColor: "#fa8c16" },
+        { name: "付款申请", desc: "对外付款申请", icon: "💸", color: "#f0f5ff", iconColor: "#2b7cd3" },
+        { name: "预算调整", desc: "部门预算变更", icon: "📊", color: "#f9f0ff", iconColor: "#9b59b6" },
+      ]
+    },
+  ];
+
+  return `
+    <div class="initiate-process-page">
+      <div class="ip-header">
+        <h2>📄 发起流程</h2>
+        <p>选择需要发起的流程类型，填写表单即可提交审批</p>
+      </div>
+      <div class="ip-search">
+        <input type="text" placeholder="🔍 搜索流程名称..." oninput="filterProcessList(this.value)">
+      </div>
+      <div class="ip-categories" id="ipCategories">
+        ${categories.map(cat => `
+          <div class="ip-category">
+            <div class="ip-category-title">
+              <span class="ip-cat-icon" style="background:${cat.color}">${cat.icon}</span>
+              ${cat.name}
+            </div>
+            <div class="ip-process-grid">
+              ${cat.items.map(item => `
+                <div class="ip-process-card" onclick="alert('发起: ${item.name}')">
+                  <div class="proc-icon" style="background:${item.color}">${item.icon}</div>
+                  <div class="proc-info">
+                    <div class="proc-name">${item.name}</div>
+                    <div class="proc-desc">${item.desc}</div>
+                  </div>
+                </div>
+              `).join("")}
+            </div>
+          </div>
+        `).join("")}
+      </div>
+    </div>
+  `;
+}
+
+
+function renderWorkbench() {
+  return `
+    <div class="workbench">
+      <div class="wb-left">
+        <div class="wb-header">
+          <div class="title">
+            📁 我的待办 <span class="count-badge">(26)</span>
+          </div>
+          <div class="link">待办中心 ›</div>
+        </div>
+        <div class="wb-filters">
+          ${filterTabs.map(f => `<div class="wb-filter ${f.active ? 'active' : ''}">${f.name} ${f.count > 0 ? `(${f.count})` : ''}</div>`).join("")}
+        </div>
+        <div class="wb-list">
+          ${pendingTasks.map(t => `
+            <div class="wb-list-item">
+              <div class="item-avatar" style="background:${t.color}">${t.avatar}</div>
+              <div class="item-content">
+                <div class="item-title">${t.title}</div>
+                <div class="item-time">${t.time}</div>
+              </div>
+              <div class="item-action">去处理 ›</div>
+            </div>
+          `).join("")}
+        </div>
+      </div>
+      <div class="wb-right">
+        <div class="wb-header">
+          <div class="title">🔔 我的通知 <span class="count-badge">(2)</span></div>
+          <div class="link">全部 ›</div>
+        </div>
+        <div class="wb-list">
+          <div class="notif-item">
+            <span class="notif-tag blue">合同</span>
+            <div class="notif-title">合同模板数据已更新，请及时查看最新模板版本</div>
+            <div class="notif-time">2026年07月07日 10:30</div>
+          </div>
+          <div class="notif-item">
+            <span class="notif-tag blue">系统</span>
+            <div class="notif-title">电子签平台同步完成，港澳台及海外模板已更新分类</div>
+            <div class="notif-time">2026年07月06日 16:20</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderOrgAdjustmentPlan() {
+  return renderPlaceholder("组织调整方案");
+}
+
+function renderOrgAdjustmentApply() {
+  const list = [
+    { title: "运营部的组织架构调整申请", name: "刘恒", empNo: "WX21245", date: "2026/07/19", type: "晋升", reason: "因公司业务发展需要", d2: "—", d3: "—", d4: "—", d5: "—", d6: "—", d7: "—" },
+    { title: "运营部的组织架构调整申请", name: "刘恒", empNo: "WX21245", date: "2026/07/18", type: "晋升", reason: "因公司业务发展需要", d2: "—", d3: "—", d4: "—", d5: "—", d6: "—", d7: "—" },
+    { title: "运营部的组织架构调整申请", name: "刘恒", empNo: "WX21245", date: "2026/07/17", type: "晋升", reason: "因公司业务发展需要", d2: "—", d3: "—", d4: "—", d5: "—", d6: "—", d7: "—" },
+    { title: "运营部的组织架构调整申请", name: "刘恒", empNo: "WX21245", date: "2026/07/16", type: "晋升", reason: "因公司业务发展需要", d2: "—", d3: "—", d4: "—", d5: "—", d6: "—", d7: "—" },
+    { title: "运营部的组织架构调整申请", name: "刘恒", empNo: "WX21245", date: "2026/07/15", type: "晋升", reason: "因公司业务发展需要", d2: "—", d3: "—", d4: "—", d5: "—", d6: "—", d7: "—" },
+    { title: "运营部的组织架构调整申请", name: "刘恒", empNo: "WX21245", date: "2026/07/14", type: "晋升", reason: "因公司业务发展需要", d2: "—", d3: "—", d4: "—", d5: "—", d6: "—", d7: "—" },
+    { title: "运营部的组织架构调整申请", name: "刘恒", empNo: "WX21245", date: "2026/07/13", type: "晋升", reason: "因公司业务发展需要", d2: "—", d3: "—", d4: "—", d5: "—", d6: "—", d7: "—" }
+  ];
+  return `
+    <div class="org-apply-list-page">
+      <div class="org-apply-list-query">
+        <!-- Query header row -->
+        <div class="query-header-row">
+          <span class="query-header-label">查询条件</span>
+          <div class="query-header-right">
+            <select class="query-scheme-select">
+              <option>默认方案</option><option>方案一</option><option>方案二</option>
+            </select>
+            <span class="icon-btn" title="新增" onclick="alert('新增方案')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </span>
+            <span class="icon-btn" title="设置" onclick="alert('设置方案')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+            </span>
+            <span class="icon-btn" title="删除" onclick="alert('删除方案')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+            </span>
+          </div>
+        </div>
+        <div class="query-field">
+          <label>申请人姓名</label>
+          <input type="text" placeholder="请通过工号/姓名搜索" id="applyEmp">
+        </div>
+        <div class="query-field">
+          <label>审批状态</label>
+          <select id="applyStatus"><option value="">请选择</option><option>审批中</option><option>已通过</option><option>已驳回</option></select>
+        </div>
+        <div class="query-field">
+          <label>创建时间</label>
+          <div class="merged-date-range">
+            <input type="text" placeholder="开始日期 ~ 结束日期" class="date-picker-input">
+          </div>
+        </div>
+        <div class="query-field">
+          <label>调整部门</label>
+          <div class="tree-select" onclick="showDeptTree(event)">
+            <input type="text" placeholder="请选择部门" id="applyDept" readonly>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="tree-icon"><path d="M6 9l6 6 6-6"/></svg>
+            <div class="tree-select-dropdown" id="deptTreeDropdown">
+              <div class="tree-node">
+                <div class="tree-node-row" onclick="toggleTreeNode(event)"><span class="tree-arrow">▶</span><span>U0001f3e2 总公司</span></div>
+                <div class="tree-children">
+                  <div class="tree-node-row sub" onclick="selectDept('运营部')"><span class="tree-arrow" style="visibility:hidden">▶</span><span>运营部</span></div>
+                  <div class="tree-node-row sub" onclick="selectDept('技术部')"><span class="tree-arrow" style="visibility:hidden">▶</span><span>技术部</span></div>
+                  <div class="tree-node">
+                    <div class="tree-node-row" onclick="toggleTreeNode(event)"><span class="tree-arrow">▶</span><span>产品中心</span></div>
+                    <div class="tree-children">
+                      <div class="tree-node-row sub" onclick="selectDept('产品部')"><span class="tree-arrow" style="visibility:hidden">▶</span><span>产品部</span></div>
+                      <div class="tree-node-row sub" onclick="selectDept('设计部')"><span class="tree-arrow" style="visibility:hidden">▶</span><span>设计部</span></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="query-field advanced-field">
+          <label>调整层级</label>
+          <div class="multi-select" id="adjustLevelSelect">
+            <div class="multi-select-trigger" onclick="toggleMultiSelect(event,this)">
+              <div class="multi-select-tags"></div>
+              <input type="text" class="multi-select-search" placeholder="请选择" readonly>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="multi-select-arrow"><path d="M6 9l6 6 6-6"/></svg>
+            </div>
+            <div class="multi-select-dropdown">
+              <label class="multi-select-option"><input type="checkbox" value="BU/条线级" onchange="updateMultiSelectTags(this)"> BU/条线级</label>
+              <label class="multi-select-option"><input type="checkbox" value="BU下设一级" onchange="updateMultiSelectTags(this)"> BU下设一级</label>
+              <label class="multi-select-option"><input type="checkbox" value="BU下设二级" onchange="updateMultiSelectTags(this)"> BU下设二级</label>
+              <label class="multi-select-option"><input type="checkbox" value="其他" onchange="updateMultiSelectTags(this)"> 其他</label>
+            </div>
+          </div>
+        </div>
+        <div class="query-field advanced-field">
+          <label>调整原因</label>
+          <div class="multi-select" id="adjustReasonSelect">
+            <div class="multi-select-trigger" onclick="toggleMultiSelect(event,this)">
+              <div class="multi-select-tags"></div>
+              <input type="text" class="multi-select-search" placeholder="请选择" readonly>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="multi-select-arrow"><path d="M6 9l6 6 6-6"/></svg>
+            </div>
+            <div class="multi-select-dropdown">
+              <label class="multi-select-option"><input type="checkbox" value="外部原因" onchange="updateMultiSelectTags(this)"> 外部原因</label>
+              <label class="multi-select-option"><input type="checkbox" value="内部原因" onchange="updateMultiSelectTags(this)"> 内部原因</label>
+            </div>
+          </div>
+        </div>
+        <div class="advanced-filter-row">
+          <a class="advanced-filter-link" onclick="toggleAdvancedFilter(this)">显示高级筛选</a>
+        </div>
+        <div class="org-apply-list-query-btns">
+          <button class="btn-query" onclick="queryOrgApplyList()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+            查询
+          </button>
+          <button class="btn-reset" onclick="resetOrgApplyListQuery()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+            重置
+          </button>
+        </div>
+      </div>
+      <div class="org-apply-list-toolbar">
+        <button class="btn-add" onclick="alert('新增组织架构调整申请')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          组织架构调整申请
+        </button>
+      </div>
+      <div class="org-apply-list-table-wrap">
+        <table class="org-apply-list-table">
+          <thead>
+            <tr>
+              <th class="col-seq">序号</th>
+              <th class="col-title">标题</th>
+              <th class="col-name">申请人姓名</th>
+              <th class="col-empno">申请人工号</th>
+              <th class="col-empty">字段1</th>
+              <th class="col-empty">字段2</th>
+              <th class="col-empty">字段3</th>
+              <th class="col-empty">字段4</th>
+              <th class="col-empty">字段5</th>
+              <th class="col-op">操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            \${list.map((item, idx) => \`
+              <tr>
+                <td class="col-seq">\${idx + 1}</td>
+                <td class="col-title"><span class="link-title">\${item.title}</span></td>
+                <td class="col-name">\${item.name}</td>
+                <td class="col-empno">\${item.empNo}</td>
+                <td class="col-empty"></td>
+                <td class="col-empty"></td>
+                <td class="col-empty"></td>
+                <td class="col-empty"></td>
+                <td class="col-empty"></td>
+                <td class="col-op"></td>
+              </tr>
+            \`).join("")}
+          </tbody>
+        </table>
+      </div>
+      <div class="org-apply-list-pagination">
+        <span>共7条</span>
+        <span class="page-btn">&lt;</span>
+        <span class="page-btn active">1</span>
+        <span class="page-btn">2</span>
+        <span class="page-btn">3</span>
+        <span class="page-btn">&gt;</span>
+        <select class="page-size">
+          <option>20条/页</option>
+          <option>50条/页</option>
+          <option>100条/页</option>
+        </select>
+        <span class="jump-to">跳至<input type="text">页</span>
+      </div>
+    </div>
+  `;
+}function showDeptTree(e) {
+  e.stopPropagation();
+  const dd = document.getElementById("deptTreeDropdown");
+  if (dd) dd.classList.toggle("show");
+}
+
+function toggleTreeNode(e) {
+  e.stopPropagation();
+  const row = e.currentTarget;
+  const children = row.nextElementSibling;
+  if (children && children.classList.contains("tree-children")) {
+    children.classList.toggle("expanded");
+    const arrow = row.querySelector(".tree-arrow");
+    if (arrow) arrow.classList.toggle("expanded");
+  }
+}
+
+function selectDept(name) {
+  const input = document.getElementById("applyDept");
+  if (input) input.value = name;
+  const dd = document.getElementById("deptTreeDropdown");
+  if (dd) dd.classList.remove("show");
+}
+
+document.addEventListener("click", function() {
+  const dd = document.getElementById("deptTreeDropdown");
+  if (dd) dd.classList.remove("show");
+});
+
+function filterProcessList(val) {
+  const cards = document.querySelectorAll("#ipCategories .ip-process-card");
+  const categories = document.querySelectorAll("#ipCategories .ip-category");
+  cards.forEach(card => {
+    const name = card.querySelector(".proc-name")?.textContent || "";
+    card.style.display = name.includes(val) ? "" : "none";
+  });
+  categories.forEach(cat => {
+    const visible = Array.from(cat.querySelectorAll(".ip-process-card")).some(c => c.style.display !== "none");
+    cat.style.display = visible ? "" : "none";
+  });
+}
+
+function queryOrgApplyList() {
+  alert("查询组织架构调整申请列表");
+}
+
+function resetOrgApplyListQuery() {
+  document.getElementById("applyEmp").value = "";
+  document.getElementById("applyStatus").value = "";
+  const d = document.getElementById("applyDept"); if (d) d.value = "";
+}
+
+function renderTeamProfile() {
+  var members = [];
+  var gearSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>';
+  var dataCols = [
+    {key:'seq',label:'序号',w:55},{key:'name',label:'姓名',w:100},{key:'empNo',label:'工号',w:90},
+    {key:'deptShort',label:'部门',w:120},{key:'dept',label:'部门全称',w:260},{key:'joinDate',label:'入职日期',w:100},
+    {key:'pos',label:'职位',w:130},{key:'rank',label:'职级',w:60},{key:'superior',label:'直属上级',w:80},
+    {key:'status',label:'人员状态',w:80},{key:'inventoryResult',label:'本年度盘点结果',w:120},
+    {key:'leaveProb',label:'离职概率',w:80},{key:'leaveImpact',label:'离职影响',w:80},
+    {key:'hasVisa',label:'是否有有效期验证',w:140},{key:'transferWill',label:'调动外派至其他国家或区域的意愿',w:220},
+    {key:'travelWill',label:'未来一年出勤意愿',w:140},{key:'inventoryResult2',label:'本年度盘点结果',w:120},
+    {key:'lastInventoryResult',label:'上一年度盘点结果',w:130},{key:'lastInventoryReport',label:'上一年度盘点报告',w:130}
+  ];
+  if (!window.tpColVisibility) {
+    window.tpColVisibility = {};
+    for (var k = 0; k < 9; k++) window.tpColVisibility[dataCols[k].key] = true;
+    window.tpColVisibility['op'] = true;
+    for (var k = 9; k < dataCols.length; k++) window.tpColVisibility[dataCols[k].key] = false;
+  }
+  var visibleCols = dataCols.filter(function(c) { return window.tpColVisibility[c.key] !== false; });
+  var hiddenCols = dataCols.filter(function(c) { return window.tpColVisibility[c.key] === false; });
+  var tableCols = visibleCols.concat(hiddenCols);
+  var allTableCols = tableCols.concat([{key:'op',label:'操作',w:60}]);
+  var totalW = allTableCols.reduce(function(s, c) { return s + c.w; }, 0) + 40;
+  var headers = tableCols.map(function(col, ci) {
+    var cls = col.key === 'seq' ? ' class="col-seq"' : '';
+    var handle = '<span class="tp-drag-handle" onmousedown="startTpColResize(event,' + ci + ')"></span>';
+    return '<th' + cls + ' style="width:' + col.w + 'px">' + col.label + handle + '</th>';
+  }).join('') +
+  '<th class="col-op" style="width:60px">操作</th>' +
+  '<th class="col-settings-th" style="width:40px">' +
+    '<span class="tp-col-settings-btn" onclick="event.stopPropagation();var dd=this.nextElementSibling;if(dd.classList.contains(\'show\')){dd.classList.remove(\'show\');if(window.tpColSettingsChanged)applyTpColSettings();}else{window.tpColSettingsChanged=false;dd.classList.add(\'show\');}" title="设置显示列">' + gearSvg + '</span>' +
+    '<div class="tp-col-settings-dd">' +
+      dataCols.map(function(col) {
+        var vis = window.tpColVisibility[col.key] !== false;
+        return '<div class="tp-col-dd-item" onmousedown="event.preventDefault();toggleTpCol(\'' + col.key + '\')" data-key="' + col.key + '">' +
+          '<span class="tp-col-dd-check' + (vis ? ' checked' : '') + '"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" width="12" height="12"><polyline points="20 6 9 17 4 12"/></svg></span>' +
+          '<span>' + col.label + '</span>' +
+        '</div>';
+      }).join('') +
+    '</div>' +
+  '</th>';
+  var colgroup = '<colgroup>' + allTableCols.map(function(col) {
+    return '<col style="width:' + col.w + 'px">';
+  }).join('') + '<col style="width:40px"></colgroup>';
+  var rows;
+  if (members.length === 0) {
+    rows = '<tr><td colspan="' + (allTableCols.length + 1) + '" style="text-align:center;padding:40px 20px;color:#b0b8cc;font-size:14px;">暂无数据</td></tr>';
+  } else {
+    rows = members.map(function(m, i) {
+      var cells = allTableCols.map(function(col) {
+        if (col.key === 'seq') return '<td class="col-seq">' + (i + 1) + '</td>';
+        if (col.key === 'op') return '<td class="col-op"><span class="link-title">查看</span></td>';
+        var val = m[col.key] || '';
+        return '<td>' + val + '</td>';
+      }).join('');
+      return '<tr>' + cells + '<td class="col-settings-td"></td></tr>';
+    }).join('');
+  }
+  return '<div class="team-profile-page">' +
+    '<div class="tp-query">' +
+      '<div class="tp-query-fields">' +
+        '<div class="query-field">' +
+          '<label>员工</label>' +
+          '<input type="text" placeholder="请通过工号/姓名搜索" id="tpEmp">' +
+        '</div>' +
+        '<div class="query-field">' +
+          '<label>部门</label>' +
+          '<div class="tree-select" onclick="showTpDeptTree(event)">' +
+            '<input type="text" placeholder="请选择部门" id="tpDept" readonly>' +
+            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="tree-icon"><path d="M6 9l6 6 6-6"/></svg>' +
+            '<div class="tree-select-dropdown" id="tpDeptTreeDropdown">' +
+              '<div class="tree-node">' +
+                '<div class="tree-node-row" onclick="toggleTreeNode(event)"><span class="tree-arrow">&#9654;</span><span>纵腾集团</span></div>' +
+                '<div class="tree-children">' +
+                  '<div class="tree-node-row sub" onclick="selectTpDept(\'HRAS 人力综合条线\')"><span class="tree-arrow" style="visibility:hidden">&#9654;</span><span>HRAS 人力综合条线</span></div>' +
+                  '<div class="tree-node-row sub" onclick="selectTpDept(\'技术中心\')"><span class="tree-arrow" style="visibility:hidden">&#9654;</span><span>技术中心</span></div>' +
+                  '<div class="tree-node">' +
+                    '<div class="tree-node-row" onclick="toggleTreeNode(event)"><span class="tree-arrow">&#9654;</span><span>产品中心</span></div>' +
+                    '<div class="tree-children">' +
+                      '<div class="tree-node-row sub" onclick="selectTpDept(\'产品部\')"><span class="tree-arrow" style="visibility:hidden">&#9654;</span><span>产品部</span></div>' +
+                      '<div class="tree-node-row sub" onclick="selectTpDept(\'设计部\')"><span class="tree-arrow" style="visibility:hidden">&#9654;</span><span>设计部</span></div>' +
+                    '</div>' +
+                  '</div>' +
+                '</div>' +
+              '</div>' +
+            '</div>' +
+          '</div>' +
+        '</div>' +
+        '<div class="query-field">' +
+          '<label>人员状态</label>' +
+          '<select id="tpPersonStatus"><option value="">请选择</option><option>在职</option><option>试用期</option><option>离职</option><option>待入职</option></select>' +
+        '</div>' +
+      '</div>' +
+      '<div class="tp-query-btns">' +
+        '<button class="btn-query" onclick="alert(\'查询团队档案\')">' +
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>' +
+          '查询' +
+        '</button>' +
+        '<button class="btn-reset" onclick="resetTpQuery()">' +
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>' +
+          '重置' +
+        '</button>' +
+      '</div>' +
+    '</div>' +
+    '<div class="tp-card-gap"></div>' +
+    '<div class="tp-table-wrap">' +
+      '<div class="tp-toolbar">' +
+        '<button class="btn-action" onclick="alert(\'转正申请\')">转正</button>' +
+        '<button class="btn-action" onclick="alert(\'调动申请\')">调动</button>' +
+        '<button class="btn-action" onclick="alert(\'离职申请\')">离职</button>' +
+        '<button class="btn-action" onclick="openOrSwitchTab(\'晋升见习转正申请\',\'promotion-form\')">晋升见习转正</button>' +
+      '</div>' +
+      '<div class="tp-table-scroll">' +
+        '<table class="tp-table" style="width:' + totalW + 'px">' +
+          colgroup +
+          '<thead><tr>' + headers + '</tr></thead>' +
+          '<tbody>' + rows + '</tbody>' +
+        '</table>' +
+      '</div>' +
+      '<div class="tp-pagination">' +
+        '<span>共' + members.length + '条</span>' +
+        '<span class="page-btn">&lt;</span>' +
+        '<span class="page-btn active">1</span>' +
+        '<span class="page-btn">&gt;</span>' +
+        '<select class="page-size"><option>20条/页</option><option>50条/页</option><option>100条/页</option></select>' +
+        '<span class="jump-to">跳至<input type="text">页</span>' +
+      '</div>' +
+    '</div>' +
+  '</div>';
+}
+
+function startTpColResize(e, colIndex) {
+  e.preventDefault();
+  e.stopPropagation();
+  var table = document.querySelector('.tp-table');
+  if (!table) return;
+  var ths = table.querySelectorAll('th');
+  var widths = [];
+  for (var i = 0; i < ths.length; i++) widths.push(ths[i].offsetWidth);
+  var startX = e.clientX;
+  var origW = widths[colIndex];
+  var handle = e.target;
+  handle.classList.add('active');
+
+  function onMove(ev) {
+    var diff = ev.clientX - startX;
+    var newW = Math.max(40, origW + diff);
+    widths[colIndex] = newW;
+    var th = ths[colIndex];
+    th.style.width = newW + 'px';
+    var cols = table.querySelectorAll('col');
+    if (cols[colIndex]) cols[colIndex].style.width = newW + 'px';
+    var total = widths.reduce(function(s, w) { return s + w; }, 0);
+    table.style.width = total + 'px';
+  }
+
+  function onUp() {
+    handle.classList.remove('active');
+    document.removeEventListener('mousemove', onMove);
+    document.removeEventListener('mouseup', onUp);
+    document.body.style.cursor = '';
+    document.body.style.userSelect = '';
+  }
+
+  document.addEventListener('mousemove', onMove);
+  document.addEventListener('mouseup', onUp);
+  document.body.style.cursor = 'col-resize';
+  document.body.style.userSelect = 'none';
+}
+
+function toggleTpCol(key) {
+  var dd = document.querySelector('.tp-col-settings-dd');
+  if (dd) {
+    var item = dd.querySelector('[data-key="' + key + '"]');
+    if (item) {
+      var check = item.querySelector('.tp-col-dd-check');
+      if (check) check.classList.toggle('checked');
+    }
+  }
+  window.tpColSettingsChanged = true;
+}
+
+function applyTpColSettings() {
+  var dd = document.querySelector('.tp-col-settings-dd');
+  if (!dd) return;
+  if (!window.tpColVisibility) window.tpColVisibility = {};
+  var items = dd.querySelectorAll('.tp-col-dd-item');
+  for (var i = 0; i < items.length; i++) {
+    var key = items[i].getAttribute('data-key');
+    var checked = items[i].querySelector('.tp-col-dd-check');
+    window.tpColVisibility[key] = checked ? checked.classList.contains('checked') : false;
+  }
+  window.tpColSettingsChanged = false;
+  renderContent();
+}
+
+function showTpDeptTree(e) {
+  e.stopPropagation();
+  var dd = document.getElementById("tpDeptTreeDropdown");
+  if (dd) dd.classList.toggle("show");
+}
+function selectTpDept(name) {
+  var input = document.getElementById("tpDept");
+  if (input) input.value = name;
+  var dd = document.getElementById("tpDeptTreeDropdown");
+  if (dd) dd.classList.remove("show");
+}
+function resetTpQuery() {
+  var emp = document.getElementById("tpEmp"); if (emp) emp.value = "";
+  var dept = document.getElementById("tpDept"); if (dept) dept.value = "";
+  var ps = document.getElementById("tpPersonStatus"); if (ps) ps.value = "";
+}
+document.addEventListener("click", function(e) {
+  var dd = document.getElementById("tpDeptTreeDropdown");
+  if (dd && dd.classList.contains("show")) {
+    if (!e.target.closest(".tree-select")) dd.classList.remove("show");
+  }
+  var cdd = document.querySelector('.tp-col-settings-dd');
+  if (cdd && cdd.classList.contains('show')) {
+    if (!e.target.closest('.col-settings-th')) {
+      cdd.classList.remove('show');
+      if (window.tpColSettingsChanged) applyTpColSettings();
+    }
+  }
+});
+document.addEventListener("click", function(e) {
+  var cdd = document.querySelector('.tpp-col-settings-dd');
+  if (cdd && cdd.classList.contains('show')) {
+    if (!e.target.closest('.col-settings-th')) {
+      cdd.classList.remove('show');
+      if (window.tppColSettingsChanged) applyTppColSettings();
+    }
+  }
+});
+
+function renderPersonnelApply() {
+  var btns = [{n:"转正",t:"转正申请",isForm:false},{n:"调动",t:"调动申请",isForm:false},{n:"离职",t:"离职申请",isForm:false},{n:"晋升见习转正",t:"晋升见习转正申请",isForm:true,tabType:"personnel-promotion-form"}];
+  var list = [
+    {name:"许大庆",dept:"纵腾集团/HRAS 人力综合条线/HSSC 人力共享中心/HRIS技术组/产品组",start:"2026-07-01",end:"2026-09-30",status:"正式"},
+  ];
+  var btnHtml = btns.map(function(b){
+    var clickHandler = b.isForm ? "openOrSwitchTab('"+b.t+"','"+(b.tabType||'promotion-form')+"')" : "alert('"+b.t+"')";
+    return '<button style="background:#0E66FB;color:#fff;border:none;border-radius:4px;padding:4px 14px;font-size:12px;cursor:pointer;line-height:24px;" onclick="'+clickHandler+'">'+b.n+'</button>';
+  }).join('');
+  var defaultCols = ["序号","姓名","部门全称","开始日期","结束日期","人员状态"];
+  var colKeys = ["idx","name","dept","start","end","status"];
+  if (typeof window.paVisibleCols === 'undefined') { window.paVisibleCols = {}; window.paColWidths = {}; }
+  for (var ci = 0; ci < colKeys.length; ci++) {
+    if (window.paVisibleCols[colKeys[ci]] === undefined) window.paVisibleCols[colKeys[ci]] = true;
+    if (!window.paColWidths[colKeys[ci]]) window.paColWidths[colKeys[ci]] = colKeys[ci]==='idx' ? 50 : (colKeys[ci]==='name' ? 80 : 120);
+  }
+  var rh = '<span class="pa-resize-handle" onmousedown="startColResize(event,\'';
+  var headHtml = '<th style="background:#fafafa;padding:5px 4px;font-weight:500;color:#666;text-align:center;position:sticky;left:0;z-index:6;width:'+window.paColWidths.idx+'px;min-width:40px;font-size:12px;white-space:nowrap;">序号</th>';
+  headHtml += '<th style="background:#fafafa;padding:5px 4px;font-weight:500;color:#666;text-align:left;position:sticky;left:'+window.paColWidths.idx+'px;z-index:6;width:'+window.paColWidths.name+'px;min-width:60px;font-size:12px;white-space:nowrap;">'+rh+'name\')"></span>姓名</th>';
+  for (var ci = 2; ci < colKeys.length; ci++) {
+    if (window.paVisibleCols[colKeys[ci]]) {
+      var extraHtml = '';
+      headHtml += '<th style="background:#fafafa;padding:5px 4px;font-weight:500;color:#666;text-align:left;width:'+window.paColWidths[colKeys[ci]]+'px;min-width:60px;font-size:12px;white-space:nowrap;">'+rh+colKeys[ci]+'\')"></span>'+defaultCols[ci]+extraHtml+'</th>';
+    }
+  }
+  var rows = list.map(function(item,rowIdx){
+    var bg = rowIdx % 2 === 0 ? '#fff' : '#f7f8fc';
+    var rowHtml = '<tr>';
+    rowHtml += '<td style="position:sticky;left:0;z-index:2;background:'+bg+';padding:5px 4px;font-size:12px;color:#333;text-align:center;">'+(rowIdx+1)+'</td>';
+    rowHtml += '<td style="position:sticky;left:'+window.paColWidths.idx+'px;z-index:2;background:'+bg+';padding:5px 4px;font-size:12px;color:#333;">'+item.name+'</td>';
+    for (var ci = 2; ci < colKeys.length; ci++) {
+      if (window.paVisibleCols[colKeys[ci]]) {
+        rowHtml += '<td style="padding:5px 4px;font-size:12px;color:#333;background:'+bg+';">'+(item[colKeys[ci]]||'')+'</td>';
+      }
+    }
+    rowHtml += '</tr>';
+    return rowHtml;
+  }).join('');
+  var settingsHtml = '<div id="colSettingsDropdown" class="col-settings-dropdown" style="display:none;position:fixed;z-index:1000;background:#fff;border:1px solid #e8eaed;border-radius:6px;box-shadow:0 4px 16px rgba(0,0,0,0.12);padding:8px 0;min-width:160px;">';
+  for (var ci = 2; ci < colKeys.length; ci++) {
+    var checked = window.paVisibleCols[colKeys[ci]] ? 'checked' : '';
+    settingsHtml += '<label style="display:flex;align-items:center;gap:8px;padding:6px 14px;font-size:13px;color:#333;cursor:pointer;"><input type="checkbox" '+checked+' onchange="toggleCol(\''+colKeys[ci]+'\')" style="margin:0;">'+defaultCols[ci]+'</label>';
+  }
+  settingsHtml += '</div>';
+  return '<div style="display:flex;flex-direction:column;height:100%;min-height:0;font-family:-apple-system,BlinkMacSystemFont,\"Segoe UI\",Roboto,sans-serif;">' +
+    '<div style="padding:10px 20px;display:flex;align-items:center;justify-content:flex-end;background:#fff;flex-shrink:0;">' +
+    '<div style="display:flex;gap:8px;">'+btnHtml+'</div></div>' +
+    '<div class="pa-scroll-area" style="background:#fff;">' +
+    '<table class="pa-data-table" style="border-collapse:collapse;font-size:12px;width:100%;table-layout:fixed;">' +
+    '<thead><tr style="position:sticky;top:0;z-index:10;">'+headHtml+'<th class="pa-col-settings-header"><span onclick="toggleColSettings(event)" style="cursor:pointer;color:#666;font-size:12px;display:inline-flex;align-items:center;gap:3px;padding:2px 6px;" title="设置显示字段">⚙ 设置</span></th></tr></thead>' +
+    '<tbody>'+rows+'</tbody></table></div></div>'+settingsHtml+'</div>';
+}
+
+function renderPromotionProbation() {
+  var list = [
+    {t:"许大庆的晋升见习转正申请",n:"许大庆",e:"WX21243",d:"纵腾集团/HRAS 人力综合条线/HSSC 人力共享中心/HRIS技术组/产品组",ps:"2025-07-24",pe:"2026-09-24",s:"审批中",tm:"2026-07-18"},
+    {t:"罗小毅的晋升见习转正申请",n:"罗小毅",e:"WX21305",d:"纵腾集团/技术中心/产品技术中心/基础架构组",ps:"2025-07-24",pe:"2026-09-24",s:"通过",tm:"2026-07-05"},
+    {t:"许新丹的晋升见习转正申请",n:"许新丹",e:"WX21198",d:"纵腾集团/HRAS 人力综合条线/HSSC 人力共享中心/运营组",ps:"2025-07-24",pe:"2026-09-24",s:"已驳回",tm:"2026-06-28"},
+    {t:"张伟的晋升见习转正申请",n:"张伟",e:"WX21267",d:"纵腾集团/技术中心/产品技术中心/前端组",ps:"2025-07-24",pe:"2026-09-24",s:"不通过",tm:"2026-06-15"},
+    {t:"李娜的晋升见习转正申请",n:"李娜",e:"WX21089",d:"纵腾集团/HRAS 人力综合条线/HSSC 人力共享中心/HRIS技术组",ps:"2025-07-24",pe:"2026-09-24",s:"已作废",tm:"2026-05-20"}
+  ];
+  var statusMap = {
+    '审批中':'background:#e0e7ff;color:#4f6ef7;',
+    '通过':'background:#e6f7ee;color:#34a853;',
+    '不通过':'background:#fff7e6;color:#fa8c16;',
+    '已作废':'background:#f5f5f5;color:#999;',
+    '已驳回':'background:#ffecec;color:#e54545;'
+  };
+  var urgeSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="#4f6ef7" stroke-width="2" width="16" height="16"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>';
+  var revokeSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="#4f6ef7" stroke-width="2" width="16" height="16"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>';
+  var voidSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="#e54545" stroke-width="2" width="16" height="16"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="15" x2="15" y2="15"/></svg>';
+  var rows = list.map(function(item,idx){
+    var stStyle = (statusMap[item.s]||'') + 'padding:2px 12px;border-radius:12px;font-size:12px;display:inline-block;';
+    var opHtml = '';
+    if (item.s === '审批中') {
+      opHtml = '<span style="display:inline-block;width:28px;height:28px;background:#e0e7ff;border-radius:4px;cursor:pointer;text-align:center;line-height:28px;margin-right:4px;" title="催办" onclick="alert(\'已催办\')">'+urgeSvg+'</span>' +
+               '<span style="display:inline-block;width:28px;height:28px;background:#e0e7ff;border-radius:4px;cursor:pointer;text-align:center;line-height:28px;" title="撤销" onclick="alert(\'已撤销\')">'+revokeSvg+'</span>';
+    } else if (item.s === '已驳回' || item.s === '已撤回') {
+      opHtml = '<span style="display:inline-block;width:28px;height:28px;background:#ffe6e6;border-radius:4px;cursor:pointer;text-align:center;line-height:28px;" title="作废" onclick="alert(\'已作废\')">'+voidSvg+'</span>';
+    }
+    return '<tr><td>'+(idx+1)+'</td><td><span style="color:#5b6afa;cursor:pointer;">'+item.t+'</span></td><td>'+item.n+'</td><td>'+item.e+'</td><td>'+item.d+'</td><td>'+item.ps+'</td><td>'+item.pe+'</td><td>'+item.tm+'</td><td><span style="'+stStyle+'">'+item.s+'</span></td><td style="white-space:nowrap;">'+opHtml+'</td></tr>';
+  }).join("");
+  return '<div style="height:100%;display:flex;flex-direction:column;background:#fff;border-radius:6px;overflow:hidden;">' +
+    '<div style="padding:12px 20px;display:flex;align-items:center;font-size:12px;color:#8a92a6;border-bottom:1px solid #eee;flex-shrink:0;">人事管理 / 任职管理 / 晋升见习转正流程</div>' +
+    '<div style="padding:10px 20px;display:grid;grid-template-columns:repeat(4,1fr);gap:8px 20px;border-bottom:1px solid #eee;flex-shrink:0;">' +
+    '<div style="grid-column:1/-1;display:flex;justify-content:flex-end;gap:8px;">' +
+    '<button style="background:#0E66FB;color:#fff;border:none;border-radius:4px;padding:6px 20px;font-size:13px;cursor:pointer;">查询</button>' +
+    '<button style="background:#fff;color:#666;border:1px solid #d9d9d9;border-radius:4px;padding:6px 20px;font-size:13px;cursor:pointer;">重置</button></div>' +
+    '<div style="grid-column:1/-1;border-top:1px solid #e8eaed;margin:4px 0;"></div>' +
+    '<div><label style="font-size:12px;color:#666;">员工</label><input style="width:100%;padding:6px 10px;border:1px solid #e8eaed;border-radius:4px;font-size:13px;outline:none;box-sizing:border-box;" placeholder="请输入"></div>' +
+    '<div style="position:relative;"><label style="font-size:12px;color:#666;">部门</label><input style="width:100%;padding:6px 10px;border:1px solid #e8eaed;border-radius:4px;font-size:13px;outline:none;box-sizing:border-box;cursor:pointer;" placeholder="请选择部门" readonly onclick="var dd=this.nextElementSibling;dd.style.display=dd.style.display===\'block\'?\'none\':\'block\';"><div style="display:none;position:absolute;left:0;right:0;top:100%;z-index:100;background:#fff;border:1px solid #e8eaed;border-radius:4px;box-shadow:0 4px 12px rgba(0,0,0,0.1);max-height:240px;overflow:auto;font-size:13px;padding:4px 0;"><div style="padding:5px 12px;cursor:pointer;white-space:nowrap;" onmouseover="this.style.background=\'#f5f7fa\'" onmouseout="this.style.background=\'\'" onclick="this.parentNode.parentNode.querySelector(\'input\').value=\'纵腾集团\';this.parentNode.style.display=\'none\';event.stopPropagation();">纵腾集团</div><div style="padding:5px 12px 5px 28px;cursor:pointer;white-space:nowrap;" onmouseover="this.style.background=\'#f5f7fa\'" onmouseout="this.style.background=\'\'" onclick="this.parentNode.parentNode.querySelector(\'input\').value=\'HRAS 人力综合条线\';this.parentNode.style.display=\'none\';event.stopPropagation();">├ HRAS 人力综合条线</div><div style="padding:5px 12px 5px 44px;cursor:pointer;white-space:nowrap;" onmouseover="this.style.background=\'#f5f7fa\'" onmouseout="this.style.background=\'\'" onclick="this.parentNode.parentNode.querySelector(\'input\').value=\'HSSC 人力共享中心\';this.parentNode.style.display=\'none\';event.stopPropagation();">├ HSSC 人力共享中心</div><div style="padding:5px 12px 5px 60px;cursor:pointer;white-space:nowrap;" onmouseover="this.style.background=\'#f5f7fa\'" onmouseout="this.style.background=\'\'" onclick="this.parentNode.parentNode.querySelector(\'input\').value=\'HRIS技术组\';this.parentNode.style.display=\'none\';event.stopPropagation();">├ HRIS技术组</div><div style="padding:5px 12px 5px 60px;cursor:pointer;white-space:nowrap;" onmouseover="this.style.background=\'#f5f7fa\'" onmouseout="this.style.background=\'\'" onclick="this.parentNode.parentNode.querySelector(\'input\').value=\'产品组\';this.parentNode.style.display=\'none\';event.stopPropagation();">└ 产品组</div></div></div>' +
+    '<div><label style="font-size:12px;color:#666;">划分区域</label><select style="width:100%;padding:6px 10px;border:1px solid #e8eaed;border-radius:4px;font-size:13px;outline:none;box-sizing:border-box;"><option>请选择</option><option>华南区</option><option>华东区</option><option>华北区</option></select></div>' +
+    '<div><label style="font-size:12px;color:#666;">审批状态</label><select style="width:100%;padding:6px 10px;border:1px solid #e8eaed;border-radius:4px;font-size:13px;outline:none;box-sizing:border-box;"><option>请选择</option><option>审批中</option><option>通过</option><option>不通过</option><option>已作废</option><option>已驳回</option></select></div>' +
+    '</div>' +
+    '<div style="padding:10px 20px;display:flex;justify-content:flex-end;gap:8px;border-bottom:1px solid #eee;flex-shrink:0;">' +
+    '<button style="background:#0E66FB;color:#fff;border:none;border-radius:4px;padding:6px 16px;font-size:13px;cursor:pointer;" onclick="openOrSwitchTab(\'晋升见习转正申请\',\'appointment-promotion-form\')">晋升见习转正</button>' +
+    '<button style="background:#fff;color:#333;border:1px solid #d9d9d9;border-radius:4px;padding:6px 16px;font-size:13px;cursor:pointer;">导出</button>' +
+    '<button style="background:#fff;color:#333;border:1px solid #d9d9d9;border-radius:4px;padding:6px 16px;font-size:13px;cursor:pointer;display:inline-flex;align-items:center;gap:4px;" onclick="openExportSettings()">⚙️ 导出设置</button></div>' +
+    '<div style="flex:1;overflow:auto;padding:8px 20px;">' +
+    '<table style="width:100%;border-collapse:collapse;font-size:13px;">' +
+    '<thead><tr><th style="background:#f7f8fc;padding:10px 12px;text-align:left;border-bottom:1px solid #e8eaed;"><span style="display:inline-block;width:3px;height:14px;background:#d0d5dd;border-radius:1px;cursor:col-resize;vertical-align:middle;margin-right:4px;"></span>序号</th><th style="background:#f7f8fc;padding:10px 12px;text-align:left;border-bottom:1px solid #e8eaed;"><span style="display:inline-block;width:3px;height:14px;background:#d0d5dd;border-radius:1px;cursor:col-resize;vertical-align:middle;margin-right:4px;"></span>标题</th><th style="background:#f7f8fc;padding:10px 12px;text-align:left;border-bottom:1px solid #e8eaed;"><span style="display:inline-block;width:3px;height:14px;background:#d0d5dd;border-radius:1px;cursor:col-resize;vertical-align:middle;margin-right:4px;"></span>申请人姓名</th><th style="background:#f7f8fc;padding:10px 12px;text-align:left;border-bottom:1px solid #e8eaed;"><span style="display:inline-block;width:3px;height:14px;background:#d0d5dd;border-radius:1px;cursor:col-resize;vertical-align:middle;margin-right:4px;"></span>申请人工号</th><th style="background:#f7f8fc;padding:10px 12px;text-align:left;border-bottom:1px solid #e8eaed;"><span style="display:inline-block;width:3px;height:14px;background:#d0d5dd;border-radius:1px;cursor:col-resize;vertical-align:middle;margin-right:4px;"></span>部门全称</th><th style="background:#f7f8fc;padding:10px 12px;text-align:left;border-bottom:1px solid #e8eaed;"><span style="display:inline-block;width:3px;height:14px;background:#d0d5dd;border-radius:1px;cursor:col-resize;vertical-align:middle;margin-right:4px;"></span>晋升见习开始日期</th><th style="background:#f7f8fc;padding:10px 12px;text-align:left;border-bottom:1px solid #e8eaed;"><span style="display:inline-block;width:3px;height:14px;background:#d0d5dd;border-radius:1px;cursor:col-resize;vertical-align:middle;margin-right:4px;"></span>晋升见习结束日期</th><th style="background:#f7f8fc;padding:10px 12px;text-align:left;border-bottom:1px solid #e8eaed;"><span style="display:inline-block;width:3px;height:14px;background:#d0d5dd;border-radius:1px;cursor:col-resize;vertical-align:middle;margin-right:4px;"></span>申请时间</th><th style="background:#f7f8fc;padding:10px 12px;text-align:left;border-bottom:1px solid #e8eaed;"><span style="display:inline-block;width:3px;height:14px;background:#d0d5dd;border-radius:1px;cursor:col-resize;vertical-align:middle;margin-right:4px;"></span>状态</th><th style="background:#f7f8fc;padding:10px 12px;text-align:left;border-bottom:1px solid #e8eaed;">操作</th></tr></thead>' +
+    '<tbody>'+rows+'</tbody></table></div></div>';
+}
+
+
+function renderPromotionProbationForm() {
+  return '<div style="height:100%;display:flex;flex-direction:column;background:#f5f6fa;overflow:hidden;">' +
+    '<div style="flex:1;overflow-y:auto;padding:6px 12px;">' +
+
+    /* ===== 员工信息 ===== */
+    '<div style="background:#fff;border-radius:8px;box-shadow:0 1px 4px rgba(0,0,0,0.06);margin-bottom:8px;overflow:hidden;">' +
+    '<div style="padding:8px 12px;font-size:14px;font-weight:600;color:#333;border-bottom:1px solid #f0f0f0;">员工信息</div>' +
+    '<div style="padding:10px 12px;display:grid;grid-template-columns:1fr 1fr;gap:14px 24px;">' +
+      '<div><label style="display:block;font-size:12px;color:#8a92a6;margin-bottom:6px;"><span style="color:red;">*</span> 员工</label><input placeholder="请输入员工姓名/工号" style="width:100%;padding:7px 12px;border:1px solid #e0e0e0;border-radius:4px;font-size:13px;outline:none;box-sizing:border-box;background:#fff;color:#333;"></div>' +
+      '<div><label style="display:block;font-size:12px;color:#8a92a6;margin-bottom:6px;"><span style="color:red;">*</span> 工号</label><input value="默认带出，置灰不可编辑" readonly style="width:100%;padding:7px 12px;border:1px solid #e8e8e8;border-radius:4px;font-size:13px;outline:none;box-sizing:border-box;background:#f5f5f5;color:#999;cursor:not-allowed;"></div>' +
+      '<div><label style="display:block;font-size:12px;color:#8a92a6;margin-bottom:6px;"><span style="color:red;">*</span> 职位</label><input value="系统专员" readonly style="width:100%;padding:7px 12px;border:1px solid #e8e8e8;border-radius:4px;font-size:13px;outline:none;box-sizing:border-box;background:#f5f5f5;color:#999;cursor:not-allowed;"></div>' +
+      '<div><label style="display:block;font-size:12px;color:#8a92a6;margin-bottom:6px;"><span style="color:red;">*</span> 职级</label><input value="P2-1" readonly style="width:100%;padding:7px 12px;border:1px solid #e8e8e8;border-radius:4px;font-size:13px;outline:none;box-sizing:border-box;background:#f5f5f5;color:#999;cursor:not-allowed;"></div>' +
+      '<div><label style="display:block;font-size:12px;color:#8a92a6;margin-bottom:6px;"><span style="color:red;">*</span> 入职日期</label><input value="2026/07/24" readonly style="width:100%;padding:7px 12px;border:1px solid #e8e8e8;border-radius:4px;font-size:13px;outline:none;box-sizing:border-box;background:#f5f5f5;color:#999;cursor:not-allowed;"></div>' +
+      '<div style="grid-column:1/3;"><label style="display:block;font-size:12px;color:#8a92a6;margin-bottom:6px;"><span style="color:red;">*</span> 部门全称</label><input value="纵腾网络-LBU速运事业部-中国操作部-华南1号枢纽-寮步操作组-出库发运组" readonly style="width:100%;padding:7px 12px;border:1px solid #e8e8e8;border-radius:4px;font-size:13px;outline:none;box-sizing:border-box;background:#f5f5f5;color:#999;cursor:not-allowed;"></div>' +
+    '</div>' +
+    '</div>' +
+
+    /* ===== 晋升信息 ===== */
+    '<div style="background:#fff;border-radius:8px;box-shadow:0 1px 4px rgba(0,0,0,0.06);margin-bottom:8px;overflow:hidden;">' +
+    '<div style="padding:8px 12px;font-size:14px;font-weight:600;color:#333;border-bottom:1px solid #f0f0f0;">晋升信息</div>' +
+    '<div style="padding:10px 12px;display:grid;grid-template-columns:1fr 1fr;gap:14px 24px;">' +
+      '<div><label style="display:block;font-size:12px;color:#8a92a6;margin-bottom:6px;"><span style="color:red;">*</span> 异动类型</label><select style="width:100%;padding:7px 12px;border:1px solid #e0e0e0;border-radius:4px;font-size:13px;outline:none;box-sizing:border-box;background:#fff;color:#333;cursor:pointer;"><option selected>见习期转正</option></select></div>' +
+      '<div><label style="display:block;font-size:12px;color:#8a92a6;margin-bottom:6px;"><span style="color:red;">*</span> 晋升见习开始日期</label><input value="2025/07/24" readonly style="width:100%;padding:7px 12px;border:1px solid #e8e8e8;border-radius:4px;font-size:13px;outline:none;box-sizing:border-box;background:#f5f5f5;color:#999;cursor:not-allowed;"></div>' +
+      '<div><label style="display:block;font-size:12px;color:#8a92a6;margin-bottom:6px;"><span style="color:red;">*</span> 晋升见习结束日期</label><input value="2026/09/24" readonly style="width:100%;padding:7px 12px;border:1px solid #e8e8e8;border-radius:4px;font-size:13px;outline:none;box-sizing:border-box;background:#f5f5f5;color:#999;cursor:not-allowed;"></div>' +
+    '</div>' +
+    '</div>' +
+
+    /* ===== 晋升见习绩效考核周期和结果 ===== */
+    '<div style="background:#fff;border-radius:8px;box-shadow:0 1px 4px rgba(0,0,0,0.06);margin-bottom:8px;overflow:hidden;">' +
+    '<div style="padding:8px 12px;font-size:14px;font-weight:600;color:#333;border-bottom:1px solid #f0f0f0;">晋升见习绩效考核周期和结果</div>' +
+    '<div style="padding:12px;">' +
+      '<table id="perfReviewTable" style="width:100%;border-collapse:collapse;font-size:13px;border:1px solid #e8eaed;">' +
+        '<thead><tr style="background:#f7f8fc;">' +
+          '<th style="padding:8px 12px;text-align:left;border:1px solid #e8eaed;font-weight:500;color:#666;width:50px;">序号</th>' +
+          '<th style="padding:8px 12px;text-align:left;border:1px solid #e8eaed;font-weight:500;color:#666;width:30%;"><span style="color:red;">*</span> 考核周期</th>' +
+          '<th style="padding:8px 12px;text-align:left;border:1px solid #e8eaed;font-weight:500;color:#666;"><span style="color:red;">*</span> 考核结果</th>' +
+          '<th style="padding:8px 12px;text-align:left;border:1px solid #e8eaed;font-weight:500;color:#666;width:70px;">操作</th>' +
+        '</tr></thead>' +
+        '<tbody>' +
+          '<tr>' +
+            '<td style="padding:8px 12px;border:1px solid #e8eaed;text-align:center;vertical-align:top;">1</td>' +
+            '<td style="padding:8px 12px;border:1px solid #e8eaed;vertical-align:top;"><textarea rows="1" maxlength="255" style="width:100%;padding:6px 10px;border:1px solid #e0e0e0;border-radius:4px;font-size:13px;outline:none;box-sizing:border-box;resize:none;overflow:hidden;font-family:inherit;max-height:66px;" placeholder="请输入周期，如：xx年xx月" oninput="this.style.height=\'auto\';this.style.height=Math.min(this.scrollHeight,66)+\'px\';this.style.overflow=this.scrollHeight>66?\'auto\':\'hidden\';this.nextElementSibling.textContent=this.value.length+\'/255\'"></textarea><span style="font-size:12px;color:#b0b8cc;">0/255</span></td>' +
+            '<td style="padding:8px 12px;border:1px solid #e8eaed;vertical-align:top;"><textarea rows="1" maxlength="255" style="width:100%;padding:6px 10px;border:1px solid #e0e0e0;border-radius:4px;font-size:13px;outline:none;box-sizing:border-box;resize:none;overflow:hidden;font-family:inherit;max-height:66px;" placeholder="请输入结果，如：符合预期" oninput="this.style.height=\'auto\';this.style.height=Math.min(this.scrollHeight,66)+\'px\';this.style.overflow=this.scrollHeight>66?\'auto\':\'hidden\';this.nextElementSibling.textContent=this.value.length+\'/255\'"></textarea><span style="font-size:12px;color:#b0b8cc;">0/255</span></td>' +
+            '<td style="padding:8px 12px;border:1px solid #e8eaed;text-align:center;vertical-align:top;"><span style="color:#0E66FB;cursor:pointer;font-size:13px;" onclick="deletePerfRow(this)">删除</span></td>' +
+          '</tr>' +
+          '<tr>' +
+            '<td style="padding:8px 12px;border:1px solid #e8eaed;text-align:center;vertical-align:top;">2</td>' +
+            '<td style="padding:8px 12px;border:1px solid #e8eaed;vertical-align:top;"><textarea rows="1" maxlength="255" style="width:100%;padding:6px 10px;border:1px solid #e0e0e0;border-radius:4px;font-size:13px;outline:none;box-sizing:border-box;resize:none;overflow:hidden;font-family:inherit;max-height:66px;" placeholder="请输入周期，如：xx年xx月" oninput="this.style.height=\'auto\';this.style.height=Math.min(this.scrollHeight,66)+\'px\';this.style.overflow=this.scrollHeight>66?\'auto\':\'hidden\';this.nextElementSibling.textContent=this.value.length+\'/255\'"></textarea><span style="font-size:12px;color:#b0b8cc;">0/255</span></td>' +
+            '<td style="padding:8px 12px;border:1px solid #e8eaed;vertical-align:top;"><textarea rows="1" maxlength="255" style="width:100%;padding:6px 10px;border:1px solid #e0e0e0;border-radius:4px;font-size:13px;outline:none;box-sizing:border-box;resize:none;overflow:hidden;font-family:inherit;max-height:66px;" placeholder="请输入结果，如：符合预期" oninput="this.style.height=\'auto\';this.style.height=Math.min(this.scrollHeight,66)+\'px\';this.style.overflow=this.scrollHeight>66?\'auto\':\'hidden\';this.nextElementSibling.textContent=this.value.length+\'/255\'"></textarea><span style="font-size:12px;color:#b0b8cc;">0/255</span></td>' +
+            '<td style="padding:8px 12px;border:1px solid #e8eaed;text-align:center;vertical-align:top;"><span style="color:#0E66FB;cursor:pointer;font-size:13px;" onclick="deletePerfRow(this)">删除</span></td>' +
+          '</tr>' +
+        '</tbody>' +
+      '</table>' +
+      '<div style="margin-top:10px;"><span style="color:#0E66FB;cursor:pointer;font-size:13px;" onclick="addPerfRow()">+ 添加行</span></div>' +
+    '</div>' +
+    '</div>' +
+
+    /* ===== 附件 ===== */
+    '<div style="background:#fff;border-radius:8px;box-shadow:0 1px 4px rgba(0,0,0,0.06);overflow:hidden;">' +
+    '<div style="padding:10px 12px;">' +
+      '<div style="font-size:13px;color:#8a92a6;margin-bottom:10px;">附件</div>' +
+      '<label style="display:inline-flex;align-items:center;gap:6px;padding:7px 16px;background:#f5f6fa;border:1px dashed #d0d5dd;border-radius:4px;cursor:pointer;font-size:13px;color:#666;" onmouseover="this.style.borderColor=\'#0E66FB\';this.style.color=\'#0E66FB\'" onmouseout="this.style.borderColor=\'#d0d5dd\';this.style.color=\'#666\'">' +
+      '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>' +
+      '附件上传' +
+      '<input type="file" style="display:none;">' +
+      '</label>' +
+    '</div>' +
+    '</div>' +
+
+  '</div>' +
+  '<div style="display:flex;justify-content:center;gap:16px;padding:12px 24px;flex-shrink:0;">' +
+    '<button style="padding:6px 24px;background:#0E66FB;color:#fff;border:none;border-radius:6px;font-size:13px;cursor:pointer;font-weight:500;" onclick="alert(\'提交成功\')">提交</button>' +
+    '<button style="padding:6px 24px;background:#fff;color:#999;border:1px solid #e8eaed;border-radius:6px;font-size:13px;cursor:pointer;" onclick="alert(\'已取消\')">取消</button>' +
+  '</div>' +
+'</div>';
+}
+
+function renderPersonnelPromotionForm() {
+  return '<div style="height:100%;display:flex;flex-direction:column;background:#f5f6fa;overflow:hidden;">' +
+    '<div style="flex:1;overflow-y:auto;padding:6px 12px;">' +
+
+    /* ===== 晋升信息 ===== */
+    '<div style="background:#fff;border-radius:8px;box-shadow:0 1px 4px rgba(0,0,0,0.06);margin-bottom:8px;overflow:hidden;">' +
+    '<div style="padding:8px 12px;font-size:14px;font-weight:600;color:#333;border-bottom:1px solid #f0f0f0;">晋升信息</div>' +
+    '<div style="padding:10px 12px;display:grid;grid-template-columns:1fr 1fr;gap:14px 24px;">' +
+      '<div><label style="display:block;font-size:12px;color:#8a92a6;margin-bottom:6px;"><span style="color:red;">*</span> 异动类型</label><select style="width:100%;padding:7px 12px;border:1px solid #e0e0e0;border-radius:4px;font-size:13px;outline:none;box-sizing:border-box;background:#fff;color:#333;cursor:pointer;"><option selected>见习期转正</option></select></div>' +
+      '<div><label style="display:block;font-size:12px;color:#8a92a6;margin-bottom:6px;"><span style="color:red;">*</span> 晋升见习开始日期</label><input value="2026/07/01" readonly style="width:100%;padding:7px 12px;border:1px solid #e8e8e8;border-radius:4px;font-size:13px;outline:none;box-sizing:border-box;background:#f5f5f5;color:#999;cursor:not-allowed;"></div>' +
+      '<div><label style="display:block;font-size:12px;color:#8a92a6;margin-bottom:6px;"><span style="color:red;">*</span> 晋升见习结束日期</label><input value="2026/09/30" readonly style="width:100%;padding:7px 12px;border:1px solid #e8e8e8;border-radius:4px;font-size:13px;outline:none;box-sizing:border-box;background:#f5f5f5;color:#999;cursor:not-allowed;"></div>' +
+    '</div>' +
+    '</div>' +
+
+    /* ===== 附件 ===== */
+    '<div style="background:#fff;border-radius:8px;box-shadow:0 1px 4px rgba(0,0,0,0.06);overflow:hidden;">' +
+    '<div style="padding:10px 12px;">' +
+      '<div style="font-size:13px;color:#8a92a6;margin-bottom:10px;">附件</div>' +
+      '<label style="display:inline-flex;align-items:center;gap:6px;padding:7px 16px;background:#f5f6fa;border:1px dashed #d0d5dd;border-radius:4px;cursor:pointer;font-size:13px;color:#666;" onmouseover="this.style.borderColor=\'#0E66FB\';this.style.color=\'#0E66FB\'" onmouseout="this.style.borderColor=\'#d0d5dd\';this.style.color=\'#666\'">' +
+      '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>' +
+      '附件上传' +
+      '<input type="file" style="display:none;">' +
+      '</label>' +
+    '</div>' +
+    '</div>' +
+
+  '</div>' +
+  '<div style="display:flex;justify-content:center;gap:16px;padding:12px 24px;flex-shrink:0;">' +
+    '<button style="padding:6px 24px;background:#0E66FB;color:#fff;border:none;border-radius:6px;font-size:13px;cursor:pointer;font-weight:500;" onclick="alert(\'提交成功\')">提交</button>' +
+    '<button style="padding:6px 24px;background:#fff;color:#999;border:1px solid #e8eaed;border-radius:6px;font-size:13px;cursor:pointer;" onclick="alert(\'已取消\')">取消</button>' +
+  '</div>' +
+'</div>';
+}
+
+function renderAppointmentPromotionForm() {
+  return '<div style="height:100%;display:flex;flex-direction:column;background:#f5f6fa;overflow:hidden;">' +
+    '<div style="flex:1;overflow-y:auto;padding:6px 12px;">' +
+
+    /* ===== 员工信息 ===== */
+    '<div style="background:#fff;border-radius:8px;box-shadow:0 1px 4px rgba(0,0,0,0.06);margin-bottom:8px;overflow:hidden;">' +
+    '<div style="padding:8px 12px;font-size:14px;font-weight:600;color:#333;border-bottom:1px solid #f0f0f0;">员工信息</div>' +
+    '<div style="padding:10px 12px;display:grid;grid-template-columns:1fr 1fr;gap:14px 24px;">' +
+      '<div><label style="display:block;font-size:12px;color:#8a92a6;margin-bottom:6px;"><span style="color:red;">*</span> 员工</label><input placeholder="请输入员工姓名/工号" style="width:100%;padding:7px 12px;border:1px solid #e0e0e0;border-radius:4px;font-size:13px;outline:none;box-sizing:border-box;background:#fff;color:#333;"></div>' +
+      '<div><label style="display:block;font-size:12px;color:#8a92a6;margin-bottom:6px;"><span style="color:red;">*</span> 工号</label><input value="默认带出，置灰不可编辑" readonly style="width:100%;padding:7px 12px;border:1px solid #e8e8e8;border-radius:4px;font-size:13px;outline:none;box-sizing:border-box;background:#f5f5f5;color:#999;cursor:not-allowed;"></div>' +
+      '<div><label style="display:block;font-size:12px;color:#8a92a6;margin-bottom:6px;"><span style="color:red;">*</span> 职位</label><input value="系统专员" readonly style="width:100%;padding:7px 12px;border:1px solid #e8e8e8;border-radius:4px;font-size:13px;outline:none;box-sizing:border-box;background:#f5f5f5;color:#999;cursor:not-allowed;"></div>' +
+      '<div><label style="display:block;font-size:12px;color:#8a92a6;margin-bottom:6px;"><span style="color:red;">*</span> 职级</label><input value="P2-1" readonly style="width:100%;padding:7px 12px;border:1px solid #e8e8e8;border-radius:4px;font-size:13px;outline:none;box-sizing:border-box;background:#f5f5f5;color:#999;cursor:not-allowed;"></div>' +
+      '<div><label style="display:block;font-size:12px;color:#8a92a6;margin-bottom:6px;"><span style="color:red;">*</span> 入职日期</label><input value="2026/07/24" readonly style="width:100%;padding:7px 12px;border:1px solid #e8e8e8;border-radius:4px;font-size:13px;outline:none;box-sizing:border-box;background:#f5f5f5;color:#999;cursor:not-allowed;"></div>' +
+      '<div style="grid-column:1/3;"><label style="display:block;font-size:12px;color:#8a92a6;margin-bottom:6px;"><span style="color:red;">*</span> 部门全称</label><input value="纵腾网络-LBU速运事业部-中国操作部-华南1号枢纽-寮步操作组-出库发运组" readonly style="width:100%;padding:7px 12px;border:1px solid #e8e8e8;border-radius:4px;font-size:13px;outline:none;box-sizing:border-box;background:#f5f5f5;color:#999;cursor:not-allowed;"></div>' +
+    '</div>' +
+    '</div>' +
+
+    /* ===== 晋升信息 ===== */
+    '<div style="background:#fff;border-radius:8px;box-shadow:0 1px 4px rgba(0,0,0,0.06);margin-bottom:8px;overflow:hidden;">' +
+    '<div style="padding:8px 12px;font-size:14px;font-weight:600;color:#333;border-bottom:1px solid #f0f0f0;">晋升信息</div>' +
+    '<div style="padding:10px 12px;display:grid;grid-template-columns:1fr 1fr;gap:14px 24px;">' +
+      '<div><label style="display:block;font-size:12px;color:#8a92a6;margin-bottom:6px;"><span style="color:red;">*</span> 异动类型</label><select style="width:100%;padding:7px 12px;border:1px solid #e0e0e0;border-radius:4px;font-size:13px;outline:none;box-sizing:border-box;background:#fff;color:#333;cursor:pointer;"><option selected>见习期转正</option></select></div>' +
+      '<div><label style="display:block;font-size:12px;color:#8a92a6;margin-bottom:6px;"><span style="color:red;">*</span> 晋升见习开始日期</label><input value="2025/07/24" readonly style="width:100%;padding:7px 12px;border:1px solid #e8e8e8;border-radius:4px;font-size:13px;outline:none;box-sizing:border-box;background:#f5f5f5;color:#999;cursor:not-allowed;"></div>' +
+      '<div><label style="display:block;font-size:12px;color:#8a92a6;margin-bottom:6px;"><span style="color:red;">*</span> 晋升见习结束日期</label><input value="2026/09/24" readonly style="width:100%;padding:7px 12px;border:1px solid #e8e8e8;border-radius:4px;font-size:13px;outline:none;box-sizing:border-box;background:#f5f5f5;color:#999;cursor:not-allowed;"></div>' +
+    '</div>' +
+    '</div>' +
+
+    /* ===== 晋升见习绩效考核周期和结果 ===== */
+    '<div style="background:#fff;border-radius:8px;box-shadow:0 1px 4px rgba(0,0,0,0.06);margin-bottom:8px;overflow:hidden;">' +
+    '<div style="padding:8px 12px;font-size:14px;font-weight:600;color:#333;border-bottom:1px solid #f0f0f0;">晋升见习绩效考核周期和结果</div>' +
+    '<div style="padding:12px;">' +
+      '<table id="appointPerfReviewTable" style="width:100%;border-collapse:collapse;font-size:13px;border:1px solid #e8eaed;">' +
+        '<thead><tr style="background:#f7f8fc;">' +
+          '<th style="padding:8px 12px;text-align:left;border:1px solid #e8eaed;font-weight:500;color:#666;width:50px;">序号</th>' +
+          '<th style="padding:8px 12px;text-align:left;border:1px solid #e8eaed;font-weight:500;color:#666;width:30%;"><span style="color:red;">*</span> 考核周期</th>' +
+          '<th style="padding:8px 12px;text-align:left;border:1px solid #e8eaed;font-weight:500;color:#666;"><span style="color:red;">*</span> 考核结果</th>' +
+          '<th style="padding:8px 12px;text-align:left;border:1px solid #e8eaed;font-weight:500;color:#666;width:70px;">操作</th>' +
+        '</tr></thead>' +
+        '<tbody>' +
+          '<tr>' +
+            '<td style="padding:8px 12px;border:1px solid #e8eaed;text-align:center;vertical-align:top;">1</td>' +
+            '<td style="padding:8px 12px;border:1px solid #e8eaed;vertical-align:top;"><textarea rows="1" maxlength="255" style="width:100%;padding:6px 10px;border:1px solid #e0e0e0;border-radius:4px;font-size:13px;outline:none;box-sizing:border-box;resize:none;overflow:hidden;font-family:inherit;max-height:66px;" placeholder="请输入周期，如：xx年xx月" oninput="this.style.height=\'auto\';this.style.height=Math.min(this.scrollHeight,66)+\'px\';this.style.overflow=this.scrollHeight>66?\'auto\':\'hidden\';this.nextElementSibling.textContent=this.value.length+\'/255\'"></textarea><span style="font-size:12px;color:#b0b8cc;">0/255</span></td>' +
+            '<td style="padding:8px 12px;border:1px solid #e8eaed;vertical-align:top;"><textarea rows="1" maxlength="255" style="width:100%;padding:6px 10px;border:1px solid #e0e0e0;border-radius:4px;font-size:13px;outline:none;box-sizing:border-box;resize:none;overflow:hidden;font-family:inherit;max-height:66px;" placeholder="请输入结果，如：符合预期" oninput="this.style.height=\'auto\';this.style.height=Math.min(this.scrollHeight,66)+\'px\';this.style.overflow=this.scrollHeight>66?\'auto\':\'hidden\';this.nextElementSibling.textContent=this.value.length+\'/255\'"></textarea><span style="font-size:12px;color:#b0b8cc;">0/255</span></td>' +
+            '<td style="padding:8px 12px;border:1px solid #e8eaed;text-align:center;vertical-align:top;"><span style="color:#0E66FB;cursor:pointer;font-size:13px;" onclick="deletePerfRow(this)">删除</span></td>' +
+          '</tr>' +
+          '<tr>' +
+            '<td style="padding:8px 12px;border:1px solid #e8eaed;text-align:center;vertical-align:top;">2</td>' +
+            '<td style="padding:8px 12px;border:1px solid #e8eaed;vertical-align:top;"><textarea rows="1" maxlength="255" style="width:100%;padding:6px 10px;border:1px solid #e0e0e0;border-radius:4px;font-size:13px;outline:none;box-sizing:border-box;resize:none;overflow:hidden;font-family:inherit;max-height:66px;" placeholder="请输入周期，如：xx年xx月" oninput="this.style.height=\'auto\';this.style.height=Math.min(this.scrollHeight,66)+\'px\';this.style.overflow=this.scrollHeight>66?\'auto\':\'hidden\';this.nextElementSibling.textContent=this.value.length+\'/255\'"></textarea><span style="font-size:12px;color:#b0b8cc;">0/255</span></td>' +
+            '<td style="padding:8px 12px;border:1px solid #e8eaed;vertical-align:top;"><textarea rows="1" maxlength="255" style="width:100%;padding:6px 10px;border:1px solid #e0e0e0;border-radius:4px;font-size:13px;outline:none;box-sizing:border-box;resize:none;overflow:hidden;font-family:inherit;max-height:66px;" placeholder="请输入结果，如：符合预期" oninput="this.style.height=\'auto\';this.style.height=Math.min(this.scrollHeight,66)+\'px\';this.style.overflow=this.scrollHeight>66?\'auto\':\'hidden\';this.nextElementSibling.textContent=this.value.length+\'/255\'"></textarea><span style="font-size:12px;color:#b0b8cc;">0/255</span></td>' +
+            '<td style="padding:8px 12px;border:1px solid #e8eaed;text-align:center;vertical-align:top;"><span style="color:#0E66FB;cursor:pointer;font-size:13px;" onclick="deletePerfRow(this)">删除</span></td>' +
+          '</tr>' +
+        '</tbody>' +
+      '</table>' +
+      '<div style="margin-top:10px;"><span style="color:#0E66FB;cursor:pointer;font-size:13px;" onclick="addPerfRow()">+ 添加行</span></div>' +
+    '</div>' +
+    '</div>' +
+
+    /* ===== 附件 ===== */
+    '<div style="background:#fff;border-radius:8px;box-shadow:0 1px 4px rgba(0,0,0,0.06);overflow:hidden;">' +
+    '<div style="padding:10px 12px;">' +
+      '<div style="font-size:13px;color:#8a92a6;margin-bottom:10px;">附件</div>' +
+      '<label style="display:inline-flex;align-items:center;gap:6px;padding:7px 16px;background:#f5f6fa;border:1px dashed #d0d5dd;border-radius:4px;cursor:pointer;font-size:13px;color:#666;" onmouseover="this.style.borderColor=\'#0E66FB\';this.style.color=\'#0E66FB\'" onmouseout="this.style.borderColor=\'#d0d5dd\';this.style.color=\'#666\'">' +
+      '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>' +
+      '附件上传' +
+      '<input type="file" style="display:none;">' +
+      '</label>' +
+    '</div>' +
+    '</div>' +
+
+  '</div>' +
+  '<div style="display:flex;justify-content:center;gap:16px;padding:12px 24px;flex-shrink:0;">' +
+    '<button style="padding:6px 24px;background:#0E66FB;color:#fff;border:none;border-radius:6px;font-size:13px;cursor:pointer;font-weight:500;" onclick="alert(\'提交成功\')">提交</button>' +
+    '<button style="padding:6px 24px;background:#fff;color:#999;border:1px solid #e8eaed;border-radius:6px;font-size:13px;cursor:pointer;" onclick="alert(\'已取消\')">取消</button>' +
+  '</div>' +
+'</div>';
+}
+
+function deletePerfRow(el) {
+  var tr = el.closest('tr');
+  if (tr) { tr.remove(); renumberPerfRows(); }
+}
+function renumberPerfRows() {
+  var tbody = document.querySelector('#perfReviewTable tbody');
+  if (!tbody) return;
+  var rows = tbody.querySelectorAll('tr');
+  for (var i = 0; i < rows.length; i++) {
+    rows[i].querySelector('td').textContent = i + 1;
+  }
+}
+function addPerfRow() {
+  var tbody = document.querySelector('#perfReviewTable tbody');
+  if (!tbody) return;
+  var n = tbody.querySelectorAll('tr').length + 1;
+  var tr = document.createElement('tr');
+  tr.innerHTML =
+    '<td style="padding:8px 12px;border:1px solid #e8eaed;text-align:center;vertical-align:top;">' + n + '</td>' +
+    '<td style="padding:8px 12px;border:1px solid #e8eaed;vertical-align:top;"><textarea rows="1" maxlength="255" style="width:100%;padding:6px 10px;border:1px solid #e0e0e0;border-radius:4px;font-size:13px;outline:none;box-sizing:border-box;resize:none;overflow:hidden;font-family:inherit;max-height:66px;" placeholder="请输入周期，如：xx年xx月" oninput="this.style.height=\'auto\';this.style.height=Math.min(this.scrollHeight,66)+\'px\';this.style.overflow=this.scrollHeight>66?\'auto\':\'hidden\';this.nextElementSibling.textContent=this.value.length+\'/255\'"></textarea><span style="font-size:12px;color:#b0b8cc;">0/255</span></td>' +
+    '<td style="padding:8px 12px;border:1px solid #e8eaed;vertical-align:top;"><textarea rows="1" maxlength="255" style="width:100%;padding:6px 10px;border:1px solid #e0e0e0;border-radius:4px;font-size:13px;outline:none;box-sizing:border-box;resize:none;overflow:hidden;font-family:inherit;max-height:66px;" placeholder="请输入结果，如：符合预期" oninput="this.style.height=\'auto\';this.style.height=Math.min(this.scrollHeight,66)+\'px\';this.style.overflow=this.scrollHeight>66?\'auto\':\'hidden\';this.nextElementSibling.textContent=this.value.length+\'/255\'"></textarea><span style="font-size:12px;color:#b0b8cc;">0/255</span></td>' +
+    '<td style="padding:8px 12px;border:1px solid #e8eaed;text-align:center;vertical-align:top;"><span style="color:#0E66FB;cursor:pointer;font-size:13px;" onclick="deletePerfRow(this)">删除</span></td>';
+  tbody.appendChild(tr);
+}
+
+
+function toggleSection(contentId, arrowId) {
+  var content = document.getElementById(contentId);
+  var arrow = document.getElementById(arrowId);
+  if (!content || !arrow) return;
+  var isHidden = content.style.display === 'none';
+  if (isHidden) {
+    content.style.display = content.getAttribute('data-orig-display') || '';
+  } else {
+    content.setAttribute('data-orig-display', content.style.display);
+    content.style.display = 'none';
+  }
+  arrow.textContent = isHidden ? '▲' : '▶';
+}
+
+// ===== Trial Period Process (转正流程) =====
+function startTppColResize(e, colIndex) {
+  e.preventDefault(); e.stopPropagation();
+  var table = document.querySelector('.tpp-table');
+  if (!table) return;
+  var ths = table.querySelectorAll('th');
+  var widths = [];
+  for (var i = 0; i < ths.length; i++) widths.push(ths[i].offsetWidth);
+  var startX = e.clientX; var origW = widths[colIndex];
+  var handle = e.target; handle.classList.add('active');
+  function onMove(ev) {
+    var diff = ev.clientX - startX;
+    var newW = Math.max(40, origW + diff);
+    widths[colIndex] = newW;
+    ths[colIndex].style.width = newW + 'px';
+    var cols = table.querySelectorAll('col');
+    if (cols[colIndex]) cols[colIndex].style.width = newW + 'px';
+    var total = widths.reduce(function(s, w) { return s + w; }, 0);
+    table.style.width = total + 'px';
+  }
+  function onUp() {
+    handle.classList.remove('active');
+    document.removeEventListener('mousemove', onMove);
+    document.removeEventListener('mouseup', onUp);
+    document.body.style.cursor = '';
+    document.body.style.userSelect = '';
+  }
+  document.addEventListener('mousemove', onMove);
+  document.addEventListener('mouseup', onUp);
+  document.body.style.cursor = 'col-resize';
+  document.body.style.userSelect = 'none';
+}
+function toggleTppCol(key) {
+  var dd = document.querySelector('.tpp-col-settings-dd');
+  if (dd) {
+    var item = dd.querySelector('[data-key="' + key + '"]');
+    if (item) {
+      var check = item.querySelector('.tpp-col-dd-check');
+      if (check) check.classList.toggle('checked');
+    }
+  }
+  window.tppColSettingsChanged = true;
+}
+function applyTppColSettings() {
+  if (!window.tppColVisibility) return;
+  var dd = document.querySelector('.tpp-col-settings-dd');
+  if (!dd) return;
+  var items = dd.querySelectorAll('.tpp-col-dd-item');
+  for (var i = 0; i < items.length; i++) {
+    var key = items[i].getAttribute('data-key');
+    var checked = items[i].querySelector('.tpp-col-dd-check');
+    window.tppColVisibility[key] = checked ? checked.classList.contains('checked') : false;
+  }
+  window.tppColSettingsChanged = false;
+  renderContent();
+}
+
+function renderTrialPeriodProcess() {
+  var members = [
+    {title:'许大庆的晋升见习转正申请',name:'许大庆',empNo:'WX21243',dept:'纵腾集团/HRAS 人力综合条线/HSSC 人力共享中心/HRIS技术组/产品组',probStartDate:'2025-07-24',probEndDate:'2026-09-24',applyTime:'2026-07-01',status:'审批中'},
+    {title:'罗小毅的晋升见习转正申请',name:'罗小毅',empNo:'WX21305',dept:'纵腾集团/技术中心/产品技术中心/基础架构组',probStartDate:'2025-07-24',probEndDate:'2026-09-24',applyTime:'2026-07-05',status:'通过'},
+    {title:'许新丹的晋升见习转正申请',name:'许新丹',empNo:'WX21198',dept:'纵腾集团/HRAS 人力综合条线/HSSC 人力共享中心/运营组',probStartDate:'2025-07-24',probEndDate:'2026-09-24',applyTime:'2026-06-28',status:'不通过'},
+    {title:'张伟明的晋升见习转正申请',name:'张伟明',empNo:'WX21310',dept:'纵腾集团/技术中心/产品技术中心/前端开发组',probStartDate:'2025-08-01',probEndDate:'2026-10-01',applyTime:'2026-06-15',status:'已作废'},
+    {title:'李晓华的晋升见习转正申请',name:'李晓华',empNo:'WX21256',dept:'纵腾集团/HRAS 人力综合条线/HSSC 人力共享中心/HRIS技术组',probStartDate:'2025-07-15',probEndDate:'2026-09-15',applyTime:'2026-07-10',status:'已驳回'},
+  ];
+  var statusMap = {
+    '审批中':'background:#e0e7ff;color:#4f6ef7;',
+    '通过':'background:#e6f7ee;color:#34a853;',
+    '不通过':'background:#fff7e6;color:#fa8c16;',
+    '已作废':'background:#f5f5f5;color:#999;',
+    '已驳回':'background:#ffecec;color:#e54545;',
+    '已撤回':'background:#ffecec;color:#e54545;'
+  };
+  var urgeSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="#4f6ef7" stroke-width="2" width="14" height="14"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>';
+  var revokeSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="#4f6ef7" stroke-width="2" width="14" height="14"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>';
+  var voidSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="#e54545" stroke-width="2" width="14" height="14"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="15" x2="15" y2="15"/></svg>';
+  var gearSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>';
+  var dataCols = [
+    {key:'seq',label:'序号',w:55},{key:'title',label:'标题',w:200},{key:'name',label:'申请人姓名',w:100},
+    {key:'empNo',label:'申请人工号',w:110},{key:'dept',label:'部门全称',w:280},{key:'probStartDate',label:'晋升见习开始日期',w:140},{key:'probEndDate',label:'晋升见习结束日期',w:140},
+    {key:'applyTime',label:'申请时间',w:110},{key:'status',label:'审批状态',w:80}
+  ];
+  if (!window.tppColVisibility) {
+    window.tppColVisibility = {};
+    for (var k = 0; k < dataCols.length; k++) window.tppColVisibility[dataCols[k].key] = true;
+  }
+  var visibleCols = dataCols.filter(function(c) { return window.tppColVisibility[c.key] !== false; });
+  var hiddenCols = dataCols.filter(function(c) { return window.tppColVisibility[c.key] === false; });
+  var tableCols = visibleCols.concat(hiddenCols);
+  var allTableCols = tableCols.concat([{key:'op',label:'操作',w:60}]);
+  var totalW = allTableCols.reduce(function(s, c) { return s + c.w; }, 0) + 40;
+
+  var headers = tableCols.map(function(col, ci) {
+    var cls = col.key === 'seq' ? ' class="col-seq"' : '';
+    var handle = '<span class="tp-drag-handle" onmousedown="startTppColResize(event,' + ci + ')"></span>';
+    return '<th' + cls + '>' + col.label + handle + '</th>';
+  }).join('') +
+  '<th class="col-op">操作</th>' +
+  '<th class="col-settings-th" style="width:40px">' +
+    '<span class="tp-col-settings-btn" onclick="event.stopPropagation();var dd=this.nextElementSibling;if(dd.classList.contains(\'show\')){dd.classList.remove(\'show\');if(window.tppColSettingsChanged)applyTppColSettings();}else{window.tppColSettingsChanged=false;dd.classList.add(\'show\');}" title="设置显示列">' + gearSvg + '</span>' +
+    '<div class="tpp-col-settings-dd">' +
+      dataCols.map(function(col) {
+        var vis = window.tppColVisibility[col.key] !== false;
+        return '<div class="tpp-col-dd-item tp-col-dd-item" onmousedown="event.preventDefault();toggleTppCol(\'' + col.key + '\')" data-key="' + col.key + '">' +
+          '<span class="tpp-col-dd-check tp-col-dd-check' + (vis ? ' checked' : '') + '"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" width="12" height="12"><polyline points="20 6 9 17 4 12"/></svg></span>' +
+          '<span>' + col.label + '</span>' +
+        '</div>';
+      }).join('') +
+    '</div>' +
+  '</th>';
+
+  var colgroup = '<colgroup>' + allTableCols.map(function() {
+    return '<col>';
+  }).join('') + '<col style="width:40px"></colgroup>';
+
+  var rows;
+  if (members.length === 0) {
+    rows = '<tr><td colspan="' + (allTableCols.length + 1) + '" style="text-align:center;padding:40px 20px;color:#b0b8cc;font-size:14px;">暂无数据</td></tr>';
+  } else {
+    rows = members.map(function(m, i) {
+      var cells = allTableCols.map(function(col) {
+        if (col.key === 'seq') return '<td class="col-seq">' + (i + 1) + '</td>';
+        if (col.key === 'op') {
+          var opBtns = '';
+          if (m.status === '审批中') {
+            opBtns = '<span style="display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:4px;background:#e0e7ff;cursor:pointer;margin-right:4px;" title="催办" onclick="alert(\'已催办\')">' + urgeSvg + '</span>' +
+                     '<span style="display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:4px;background:#e0e7ff;cursor:pointer;" title="撤销" onclick="alert(\'已撤销\')">' + revokeSvg + '</span>';
+          } else if (m.status === '已驳回' || m.status === '已撤回') {
+            opBtns = '<span style="display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:4px;background:#ffe6e6;cursor:pointer;" title="作废" onclick="alert(\'已作废\')">' + voidSvg + '</span>';
+          }
+          return '<td class="col-op">' + opBtns + '</td>';
+        }
+        if (col.key === 'title') return '<td><span class="link-title">' + m[col.key] + '</span></td>';
+        if (col.key === 'status') {
+          var st = m[col.key] || '';
+          var stStyle = statusMap[st] || '';
+          return '<td><span style="display:inline-block;padding:2px 10px;border-radius:10px;font-size:12px;' + stStyle + '">' + st + '</span></td>';
+        }
+        var val = m[col.key] || '';
+        return '<td>' + val + '</td>';
+      }).join('');
+      return '<tr>' + cells + '<td class="col-settings-td"></td></tr>';
+    }).join('');
+  }
+
+  return '<div style="height:100%;display:flex;flex-direction:column;background:#f0f2f5;border-radius:8px;overflow-y:auto;overflow-x:hidden;">' +
+    /* Card 1: Query filters */
+    '<div class="tp-query" style="margin:0 0 -3px 0;">' +
+      '<div class="tp-scheme-row">' +
+        '<span class="tp-query-label">查询条件</span>' +
+        '<div style="display:flex;align-items:center;gap:8px;">' +
+        '<select class="query-scheme-select"><option>标准方案</option><option>方案一</option><option>方案二</option></select>' +
+        '<span class="icon-btn" title="新增" onclick="alert(\'新增方案\')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></span>' +
+        '<span class="icon-btn" title="设置" onclick="alert(\'设置方案\')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span>' +
+        '<span class="icon-btn" title="删除" onclick="alert(\'删除方案\')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></span>' +
+        '</div>' +
+      '</div>' +
+      '<div class="tp-query-fields">' +
+        '<div class="query-field"><label>员工</label><input type="text" placeholder="请通过工号/姓名搜索" id="tppEmp"></div>' +
+        '<div class="query-field"><label>部门</label><div class="tree-select" id="tppDeptTree" style="position:relative;"><input type="text" placeholder="请选择部门" id="tppDept" readonly style="cursor:pointer;" onclick="var dd=this.nextElementSibling;dd.style.display=dd.style.display===\'block\'?\'none\':\'block\';"><div style="display:none;position:absolute;left:0;right:0;top:100%;z-index:100;background:#fff;border:1px solid #e8eaed;border-radius:4px;box-shadow:0 4px 12px rgba(0,0,0,0.1);max-height:240px;overflow:auto;font-size:13px;padding:4px 0;"><div style="padding:5px 12px;cursor:pointer;white-space:nowrap;" onmouseover="this.style.background=\'#f5f7fa\'" onmouseout="this.style.background=\'\'" onclick="this.parentNode.parentNode.querySelector(\'input\').value=\'纵腾集团\';this.parentNode.style.display=\'none\';event.stopPropagation();">纵腾集团</div><div style="padding:5px 12px 5px 28px;cursor:pointer;white-space:nowrap;" onmouseover="this.style.background=\'#f5f7fa\'" onmouseout="this.style.background=\'\'" onclick="this.parentNode.parentNode.querySelector(\'input\').value=\'HRAS 人力综合条线\';this.parentNode.style.display=\'none\';event.stopPropagation();">├ HRAS 人力综合条线</div><div style="padding:5px 12px 5px 44px;cursor:pointer;white-space:nowrap;" onmouseover="this.style.background=\'#f5f7fa\'" onmouseout="this.style.background=\'\'" onclick="this.parentNode.parentNode.querySelector(\'input\').value=\'HSSC 人力共享中心\';this.parentNode.style.display=\'none\';event.stopPropagation();">├ HSSC 人力共享中心</div><div style="padding:5px 12px 5px 60px;cursor:pointer;white-space:nowrap;" onmouseover="this.style.background=\'#f5f7fa\'" onmouseout="this.style.background=\'\'" onclick="this.parentNode.parentNode.querySelector(\'input\').value=\'HRIS技术组\';this.parentNode.style.display=\'none\';event.stopPropagation();">├ HRIS技术组</div><div style="padding:5px 12px 5px 60px;cursor:pointer;white-space:nowrap;" onmouseover="this.style.background=\'#f5f7fa\'" onmouseout="this.style.background=\'\'" onclick="this.parentNode.parentNode.querySelector(\'input\').value=\'产品组\';this.parentNode.style.display=\'none\';event.stopPropagation();">└ 产品组</div></div></div></div>' +
+        '<div class="query-field"><label>划分区域</label><select id="tppArea"><option value="">请选择</option><option>华南区</option><option>华东区</option><option>华北区</option></select></div>' +
+        '<div class="query-field"><label>审批状态</label><select id="tppStatus"><option value="">请选择</option><option>审批中</option><option>通过</option><option>不通过</option><option>已作废</option><option>已驳回</option></select></div>' +
+        '<div class="query-field"><label>创建时间</label><input type="date" id="tppDate"></div>' +
+      '</div>' +
+      '<div style="display:flex;align-items:center;justify-content:space-between;">' +
+        '<div class="tp-toggle-advanced" onclick="var fields=document.querySelectorAll(\'.tpp-page .advanced-field\');var h=this.querySelector(\'span\').textContent===\'显示高级筛选\';fields.forEach(function(f){f.classList.toggle(\'visible\',h);});this.querySelector(\'span\').textContent=h?\'隐藏高级筛选\':\'显示高级筛选\'">' +
+          '<span>显示高级筛选</span>' +
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M6 9l6 6 6-6"/></svg>' +
+        '</div>' +
+        '<div class="tp-query-btns">' +
+          '<button class="btn-query" onclick="alert(\'查询转正流程\')">' +
+            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>查询' +
+          '</button>' +
+          '<button class="btn-reset" onclick="document.getElementById(\'tppEmp\').value=\'\';document.getElementById(\'tppDept\').value=\'\';document.getElementById(\'tppArea\').value=\'\';document.getElementById(\'tppStatus\').value=\'\';document.getElementById(\'tppDate\').value=\'\';">' +
+            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>重置' +
+          '</button>' +
+        '</div>' +
+      '</div>' +
+    '</div>' +
+    '<div style="height:16px;flex-shrink:0;"></div>' +
+    /* Card 2: Data table */
+    '<div class="tp-table-wrap tpp-page" style="margin:0 0 -12px 0;">' +
+      '<div style="display:flex;justify-content:flex-end;padding:8px 20px 0;flex-shrink:0;">' +
+        '<button style="padding:6px 16px;border:none;border-radius:4px;background:var(--primary);color:#fff;font-size:13px;cursor:pointer;white-space:nowrap;" onclick="openOrSwitchTab(\'晋升见习转正申请\',\'appointment-promotion-form\')">晋升见习转正</button>' +
+        '<button style="padding:6px 16px;border:1px solid #d9d9d9;border-radius:4px;background:#fff;color:#333;font-size:13px;cursor:pointer;white-space:nowrap;margin-left:8px;">导出</button>' +
+        '<button style="padding:6px 16px;border:1px solid #d9d9d9;border-radius:4px;background:#fff;color:#333;font-size:13px;cursor:pointer;white-space:nowrap;margin-left:4px;display:inline-flex;align-items:center;gap:4px;" onclick="openExportSettings()">⚙️ 导出设置</button>' +
+      '</div>' +
+      '<div class="tp-table-scroll" style="padding:8px 0 8px 12px;">' +
+        '<table class="tp-table tpp-table" style="table-layout:auto">' +
+          colgroup +
+          '<thead><tr>' + headers + '</tr></thead>' +
+          '<tbody>' + rows + '</tbody>' +
+        '</table>' +
+      '</div>' +
+      '<div class="tp-pagination">' +
+        '<span>共' + members.length + '条</span>' +
+        '<span class="page-btn">&lt;</span>' +
+        '<span class="page-btn active">1</span>' +
+        '<span class="page-btn">&gt;</span>' +
+        '<select class="page-size"><option>20条/页</option><option>50条/页</option><option>100条/页</option></select>' +
+        '<span class="jump-to">跳至<input type="text">页</span>' +
+      '</div>' +
+    '</div>' +
+  '</div>';
+}
+
+// ===== Column visibility + resize =====
+function toggleCol(key) {
+  window.paVisibleCols[key] = !window.paVisibleCols[key];
+}
+function toggleColSettings(e) {
+  e.stopPropagation();
+  var dd = document.getElementById('colSettingsDropdown');
+  if (!dd) return;
+  var isShow = dd.style.display !== 'none';
+  if (isShow) { dd.style.display = 'none'; renderContent(); }
+  else {
+    dd.style.display = 'block';
+    var rect = e.currentTarget.getBoundingClientRect();
+    dd.style.left = Math.min(rect.right - dd.offsetWidth, window.innerWidth - dd.offsetWidth - 10) + 'px';
+    dd.style.top = (rect.bottom + 4) + 'px';
+  }
+}
+document.addEventListener('click', function(e) {
+  var dd = document.getElementById('colSettingsDropdown');
+  if (dd && dd.style.display !== 'none') {
+    if (!e.target.closest('#colSettingsDropdown') && !e.target.closest('[onclick*="toggleColSettings"]')) {
+      dd.style.display = 'none'; renderContent();
+    }
+  }
+});
+var colResizeState = null;
+function startColResize(e, key) {
+  var th = e.currentTarget.closest('th');
+  if (!th) return;
+  colResizeState = { key: key, startX: e.clientX, startWidth: th.offsetWidth, th: th };
+  document.addEventListener('mousemove', doColResize);
+  document.addEventListener('mouseup', stopColResize);
+  document.body.style.cursor = 'col-resize';
+  e.preventDefault();
+}
+function doColResize(e) {
+  if (!colResizeState) return;
+  var diff = e.clientX - colResizeState.startX;
+  var newWidth = colResizeState.startWidth + diff;
+  if (newWidth < 40) newWidth = 40;
+  window.paColWidths[colResizeState.key] = newWidth;
+  renderContent();
+}
+function stopColResize() {
+  colResizeState = null;
+  document.removeEventListener('mousemove', doColResize);
+  document.removeEventListener('mouseup', stopColResize);
+  document.body.style.cursor = '';
+}
+function renderPlaceholder(name) {
+  return `
+    <div class="placeholder-page">
+      <div class="ph-icon">🚧</div>
+      <div class="ph-text">${name} — 内容待开发</div>
+    </div>
+  `;
+}
+
+
+function toggleMultiSelect(e, trigger) {
+  e.stopPropagation();
+  var dd = trigger.nextElementSibling;
+  if (dd) dd.classList.toggle("show");
+}
+function updateMultiSelectTags(checkbox) {
+  var container = checkbox.closest(".multi-select");
+  var tags = container.querySelector(".multi-select-tags");
+  var checked = container.querySelectorAll('.multi-select-option input:checked');
+  tags.innerHTML = "";
+  checked.forEach(function(cb) {
+    var t = document.createElement("span");
+    t.className = "multi-select-tag";
+    t.dataset.val = cb.value;
+    t.innerHTML = cb.value + ' <span class="tag-close">&times;</span>';
+    t.querySelector(".tag-close").onclick = function(ev) {
+      ev.stopPropagation();
+      var v = t.dataset.val;
+      container.querySelectorAll('.multi-select-option input').forEach(function(c) {
+        if (c.value === v) c.checked = false;
+      });
+      updateMultiSelectTags(container.querySelector('.multi-select-option input'));
+    };
+    tags.appendChild(t);
+  });
+}
+function toggleAdvancedFilter(link) {
+  var fields = document.querySelectorAll(".advanced-field");
+  var hidden = link.textContent === "显示高级筛选";
+  fields.forEach(function(f) { f.classList.toggle("visible", hidden); });
+  link.textContent = hidden ? "隐藏高级筛选" : "显示高级筛选";
+}
+document.addEventListener("click", function(e) {
+  document.querySelectorAll(".multi-select-dropdown.show").forEach(function(dd) {
+    if (!dd.closest(".multi-select").contains(e.target)) dd.classList.remove("show");
+  });
+});
+
+// ===== Init =====
+document.getElementById("allMenuBtn").addEventListener("click", function(e) {
+  e.stopPropagation();
+  document.getElementById("allMenuDropdown").classList.toggle("show");
+});
+
+document.addEventListener("click", function(e) {
+  // Close all menu dropdown — click on overlay background or outside
+  const dd = document.getElementById("allMenuDropdown");
+  if (dd.classList.contains("show")) {
+    if (e.target === dd || (!dd.contains(e.target) && !document.getElementById("allMenuBtn").contains(e.target))) {
+      dd.classList.remove("show");
+    }
+  }
+  // Close tab dropdown
+  const td = document.getElementById("tabDropdown");
+  const arrow = document.getElementById("tabArrow");
+  if (td && arrow && !arrow.contains(e.target)) {
+    td.classList.remove("show");
+  }
+});
+
+
+// ===== Export settings modal =====
+var tppExportFields = [
+  {key:'seq',label:'序号'},
+  {key:'title',label:'标题'},
+  {key:'name',label:'申请人姓名'},
+  {key:'empNo',label:'申请人工号'},
+  {key:'dept',label:'部门全称'},
+  {key:'probStartDate',label:'晋升见习开始日期'},
+  {key:'probEndDate',label:'晋升见习结束日期'},
+  {key:'applyTime',label:'申请时间'},
+  {key:'status',label:'审批状态'}
+];
+var tppExportSelected = tppExportFields.map(function(f) { return f.key; });
+
+function openExportSettings() {
+  // Build modal HTML
+  tppExportSelected = tppExportFields.map(function(f) { return f.key; });
+  var leftFields = [];
+  var rightFields = [];
+  for (var i = 0; i < tppExportFields.length; i++) {
+    var f = tppExportFields[i];
+    if (tppExportSelected.indexOf(f.key) >= 0) {
+      rightFields.push(f);
+    } else {
+      leftFields.push(f);
+    }
+  }
+  var leftHtml = leftFields.map(function(f) {
+    return '<div class="export-field-item" data-key="' + f.key + '" onclick="moveExportField(\'' + f.key + '\', \'right\')">' + f.label + '</div>';
+  }).join('');
+  var rightHtml = rightFields.map(function(f) {
+    return '<div class="export-field-item" data-key="' + f.key + '" onclick="moveExportField(\'' + f.key + '\', \'left\')">' + f.label + '</div>';
+  }).join('');
+
+  var modal = document.getElementById('exportSettingsModal');
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.id = 'exportSettingsModal';
+    modal.className = 'export-modal-overlay';
+    modal.onclick = function(e) { if (e.target === modal) closeExportSettings(); };
+    document.body.appendChild(modal);
+  }
+  modal.innerHTML = 
+    '<div class="export-modal">' +
+      '<div class="export-modal-header">' +
+        '<h3>导出字段设置</h3>' +
+        '<button class="export-modal-close" onclick="closeExportSettings()">✕</button>' +
+      '</div>' +
+      '<div class="export-modal-body">' +
+        '<div class="export-field-card">' +
+          '<div class="export-field-card-header">未选项</div>' +
+          '<div class="export-field-card-body" id="exportLeftCard">' + leftHtml + '</div>' +
+        '</div>' +
+        '<div class="export-arrows">' +
+          '<button class="export-arrow-btn" onclick="moveAllExportFields(\'right\')" title="全部新增">≤</button>' +
+          '<button class="export-arrow-btn" onclick="moveAllExportFields(\'left\')" title="全部移除">≥</button>' +
+        '</div>' +
+        '<div class="export-field-card">' +
+          '<div class="export-field-card-header">已选项</div>' +
+          '<div class="export-field-card-body" id="exportRightCard">' + rightHtml + '</div>' +
+        '</div>' +
+      '</div>' +
+      '<div class="export-modal-footer">' +
+        '<button class="export-btn-cancel" onclick="closeExportSettings()">取消</button>' +
+        '<button class="export-btn-confirm" onclick="confirmExportSettings()">确认</button>' +
+      '</div>' +
+    '</div>';
+  modal.classList.add('show');
+}
+
+function closeExportSettings() {
+  var modal = document.getElementById('exportSettingsModal');
+  if (modal) modal.classList.remove('show');
+}
+
+function moveExportField(key, direction) {
+  if (direction === 'right') {
+    var idx = tppExportSelected.indexOf(key);
+    if (idx < 0) tppExportSelected.push(key);
+  } else {
+    var idx = tppExportSelected.indexOf(key);
+    if (idx >= 0) tppExportSelected.splice(idx, 1);
+  }
+  refreshExportCards();
+}
+
+function moveAllExportFields(direction) {
+  if (direction === 'right') {
+    tppExportSelected = tppExportFields.map(function(f) { return f.key; });
+  } else {
+    tppExportSelected = [];
+  }
+  refreshExportCards();
+}
+
+function refreshExportCards() {
+  var leftFields = [];
+  var rightFields = [];
+  for (var i = 0; i < tppExportFields.length; i++) {
+    var f = tppExportFields[i];
+    if (tppExportSelected.indexOf(f.key) >= 0) {
+      rightFields.push(f);
+    } else {
+      leftFields.push(f);
+    }
+  }
+  var leftHtml = leftFields.map(function(f) {
+    return '<div class="export-field-item" data-key="' + f.key + '" onclick="moveExportField(\'' + f.key + '\', \'right\')">' + f.label + '</div>';
+  }).join('');
+  var rightHtml = rightFields.map(function(f) {
+    return '<div class="export-field-item" data-key="' + f.key + '" onclick="moveExportField(\'' + f.key + '\', \'left\')">' + f.label + '</div>';
+  }).join('');
+  var leftCard = document.getElementById('exportLeftCard');
+  var rightCard = document.getElementById('exportRightCard');
+  if (leftCard) leftCard.innerHTML = leftHtml;
+  if (rightCard) rightCard.innerHTML = rightHtml;
+}
+
+function confirmExportSettings() {
+  alert('导出设置已确认。已选择字段: ' + tppExportSelected.map(function(k) { var f = tppExportFields.find(function(x) { return x.key === k; }); return f ? f.label : k; }).join('、'));
+  closeExportSettings();
+}
+
+// Render everything
+renderAllMenuDropdown();
+renderSidebar();
+renderTabs();
+renderContent();
+</script>
+
+</body>
+</html>
