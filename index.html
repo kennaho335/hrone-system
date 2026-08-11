@@ -1356,7 +1356,7 @@
     margin: 0 -12px;
   }
   .tp-table-scroll { flex: 1; overflow: auto; padding: 8px 0; }
-  .tp-table { width: 100%; border-collapse: collapse; font-size: 13px; table-layout: fixed; }
+  .tp-table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 13px; table-layout: fixed; }
   .tp-table thead th {
     background: #f7f8fc; color: #666; font-weight: 500;
     padding: 8px 10px; text-align: left;
@@ -1378,13 +1378,15 @@
   .tp-table tbody tr:nth-child(even) td.col-seq { background: #f7f8fc; }
   .tp-table tbody tr:hover td.col-seq { background: #e8f3ff; }
   .tp-table .col-op {
-    position: sticky; right: 40px; z-index: 12;
+    position: sticky; right: 0; z-index: 12;
     background: #f7f8fc; border-left: 2px solid #d0d5dd;
   }
   .tp-table thead th.col-op { z-index: 25; background: #f7f8fc; }
   .tp-table tbody tr:nth-child(odd) td.col-op { background: #fff; }
   .tp-table tbody tr:nth-child(even) td.col-op { background: #f7f8fc; }
   .tp-table tbody tr:hover td.col-op { background: #e8f3ff; }
+  .gear-btn { cursor: pointer; opacity: 0.65; font-size: 13px; margin-left: 2px; vertical-align: middle; }
+  .gear-btn:hover { opacity: 1; color: #0E66FB; }
   .tp-drag-handle {
     position: absolute; right: 0; top: 8px; bottom: 8px;
     width: 1px; background: #d0d5dd;
@@ -1658,6 +1660,12 @@
 .export-btn-cancel:hover{border-color:var(--primary);color:var(--primary);}
 .export-btn-confirm{border:none;background:var(--primary);color:#fff;}
 .export-btn-confirm:hover{opacity:0.85;}
+.colset-body{padding:8px 0;overflow:auto;max-height:58vh;}
+.colset-item{display:flex;align-items:center;gap:10px;padding:9px 24px;font-size:13px;color:#333;cursor:pointer;user-select:none;}
+.colset-item:hover{background:#f5f7fa;}
+.colset-item input{width:16px;height:16px;margin:0;cursor:pointer;flex-shrink:0;}
+.colset-item.disabled{color:#bbb;cursor:not-allowed;}
+.colset-item.disabled input{cursor:not-allowed;}
 </style>
 </head>
 <body>
@@ -2560,7 +2568,7 @@ document.addEventListener("click", function(e) {
 });
 
 function renderPersonnelApply() {
-  var btns = [{n:"转正",t:"转正申请",isForm:false},{n:"调动",t:"调动申请",isForm:false},{n:"离职",t:"离职申请",isForm:false},{n:"晋升见习转正",t:"晋升见习转正申请",isForm:true,tabType:"personnel-promotion-form"}];
+  var btns = [{n:"转正",t:"转正申请",isForm:false},{n:"调动",t:"调动申请",isForm:false},{n:"晋升见习转正",t:"晋升见习转正申请",isForm:true,tabType:"personnel-promotion-form"},{n:"离职",t:"离职申请",isForm:false}];
   var list = [
     {name:"许大庆",dept:"纵腾集团/HRAS 人力综合条线/HSSC 人力共享中心/HRIS技术组/产品组",start:"2026-07-01",end:"2026-09-30",status:"正式"},
   ];
@@ -2661,16 +2669,18 @@ function renderPromotionEmployeeControl(scope, emp) {
   var prefix = scope === 'team' ? 'teamPromotion' : 'appointPromotion';
   var list = getPromotionList(scope);
   var options = list.map(function(e) {
+    var tag = '';
     return '<div class="promotion-emp-option" data-search="' + e.name + ' ' + e.empNo + '" onclick="selectPromotionEmployee(\'' + scope + '\',\'' + e.empNo + '\')" style="padding:8px 12px;cursor:pointer;border-bottom:1px solid #f0f0f0;display:flex;justify-content:space-between;gap:10px;align-items:center;">' +
       '<span><span style="font-weight:600;color:#333;">' + e.name + '</span><span style="font-size:12px;color:#8a92a6;margin-left:8px;">' + e.empNo + ' / ' + e.position + '</span></span>' +
-      '<span style="font-size:12px;color:#0E66FB;background:#eef0ff;border-radius:10px;padding:1px 8px;white-space:nowrap;">' + e.scope + '</span>' +
+      tag +
     '</div>';
   }).join('');
-  var tips = scope === 'team' ? '只能选择本人及下属员工（含间隔下级）' : '只能选择数据权限范围内员工数据';
+  var tips = '';
+  var tipHtml = tips ? '<div style="font-size:12px;color:#8a92a6;margin-top:4px;">' + tips + '</div>' : '';
   return '<div style="position:relative;">' +
     '<input id="' + prefix + 'EmpSearch" value="' + emp.name + ' / ' + emp.empNo + '" placeholder="请输入员工姓名/工号" onfocus="showPromotionEmpDropdown(\'' + scope + '\')" oninput="filterPromotionEmpOptions(\'' + scope + '\',this.value)" style="width:100%;padding:7px 12px;border:1px solid #e0e0e0;border-radius:4px;font-size:13px;outline:none;box-sizing:border-box;background:#fff;color:#333;">' +
     '<div id="' + prefix + 'EmpDropdown" style="display:none;position:absolute;left:0;right:0;top:34px;z-index:999;background:#fff;border:1px solid #e8eaed;border-radius:6px;box-shadow:0 4px 16px rgba(0,0,0,0.12);max-height:220px;overflow:auto;">' + options + '</div>' +
-    '<div style="font-size:12px;color:#8a92a6;margin-top:4px;">' + tips + '</div>' +
+    tipHtml +
   '</div>';
 }
 function renderPromotionEmployeeInfo(scope) {
@@ -2687,7 +2697,15 @@ function renderPromotionEmployeeInfo(scope) {
 }
 
 
-function renderPromotionAttachment() {
+function renderPromotionAttachment(ro) {
+  if (ro) {
+    return '<div style="background:#fff;border-radius:8px;box-shadow:0 1px 4px rgba(0,0,0,0.06);overflow:hidden;">' +
+      '<div style="padding:10px 12px;">' +
+        '<div style="font-size:13px;color:#8a92a6;margin-bottom:10px;">附件</div>' +
+        '<div style="display:inline-flex;align-items:center;gap:6px;padding:7px 16px;background:#f5f5f5;border:1px solid #e8e8e8;border-radius:4px;font-size:13px;color:#999;cursor:not-allowed;">' +
+        '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>' +
+        '附件上传</div></div></div>';
+  }
   return '<div style="background:#fff;border-radius:8px;box-shadow:0 1px 4px rgba(0,0,0,0.06);overflow:hidden;">' +
     '<div style="padding:10px 12px;">' +
       '<div style="font-size:13px;color:#8a92a6;margin-bottom:10px;">附件</div>' +
@@ -3023,6 +3041,81 @@ function openExportSettings() {
   modal.classList.add('show');
 }
 
+// ===== 列表字段显示/隐藏设置（晋升见习转正列表 / 团队档案列表）=====
+var COL_SETTINGS = {
+  tpp: {
+    table: '.tpp-table',
+    title: '列表字段设置',
+    cols: [
+      {label:'序号', locked:true}, {label:'标题'}, {label:'员工'}, {label:'工号'}, {label:'部门'},
+      {label:'部门全称'}, {label:'晋升见习开始日期'}, {label:'晋升见习预计结束日期'}, {label:'申请时间'},
+      {label:'审批状态'}, {label:'创建人'}, {label:'创建时间'}, {label:'划分区域'}, {label:'是否有试用协议'},
+      {label:'操作', locked:true}
+    ]
+  },
+  team: {
+    table: '.team-profile-table',
+    title: '列表字段设置',
+    cols: [
+      {label:'序号', locked:true}, {label:'姓名'}, {label:'工号'}, {label:'部门'}, {label:'部门全称'},
+      {label:'入职日期'}, {label:'职位'}, {label:'职级'}, {label:'直属上级'}, {label:'人员状态'},
+      {label:'本年度盘点结果'}, {label:'离职概率'}, {label:'离职影响'}, {label:'是否有有效期验证'},
+      {label:'调动外派至其他国家或区域的意愿'}, {label:'未来一年出勤意愿'}, {label:'本年度盘点结果'},
+      {label:'上一年度盘点结果'}, {label:'上一年度盘点报告'}, {label:'操作', locked:true}
+    ]
+  }
+};
+window.__colVis = window.__colVis || {};
+function colVisDefault(key){ return COL_SETTINGS[key].cols.map(function(x,i){ return i+1; }); }
+function setTableColumnVisibility(tableSel, visArr){
+  var table = document.querySelector(tableSel);
+  if (!table) return;
+  var ths = table.querySelectorAll('thead th');
+  for (var i=0;i<ths.length;i++){
+    if (ths[i].classList.contains('col-op')) { ths[i].style.display = ''; continue; }
+    var show = visArr.indexOf(i+1) >= 0;
+    ths[i].style.display = show ? '' : 'none';
+    var col = table.querySelector('colgroup col:nth-child(' + (i+1) + ')');
+    if (col) col.style.display = show ? '' : 'none';
+    var tbody = table.querySelector('tbody');
+    if (tbody){ for (var j=0;j<tbody.children.length;j++){ var td = tbody.children[j].children[i]; if (td) td.style.display = show ? '' : 'none'; } }
+  }
+}
+function openColumnSettings(key){
+  var cfg = COL_SETTINGS[key];
+  if (!window.__colVis[key]) window.__colVis[key] = colVisDefault(key);
+  var vis = window.__colVis[key];
+  var modal = document.getElementById('columnSettingsModal');
+  if (!modal){
+    modal = document.createElement('div');
+    modal.id = 'columnSettingsModal';
+    modal.className = 'export-modal-overlay';
+    modal.onclick = function(e){ if (e.target === modal) closeColumnSettings(); };
+    document.body.appendChild(modal);
+  }
+  var items = cfg.cols.map(function(c, i){
+    var idx = i+1;
+    var checked = vis.indexOf(idx) >= 0;
+    if (c.locked){
+      return '<label class="colset-item disabled"><input type="checkbox" ' + (checked?'checked':'') + ' disabled> ' + c.label + '（固定）</label>';
+    }
+    return '<label class="colset-item"><input type="checkbox" ' + (checked?'checked':'') + ' onchange="toggleColSetting(\'' + key + '\',' + idx + ',this.checked)"> ' + c.label + '</label>';
+  }).join('');
+  modal.innerHTML = '<div class="export-modal" style="width:420px;">' +
+    '<div class="export-modal-header"><h3>' + cfg.title + '</h3><button class="export-modal-close" onclick="closeColumnSettings()">✕</button></div>' +
+    '<div class="colset-body">' + items + '</div>' +
+    '</div>';
+  modal.classList.add('show');
+}
+function toggleColSetting(key, idx, show){
+  var vis = window.__colVis[key];
+  var pos = vis.indexOf(idx);
+  if (show && pos < 0) vis.push(idx);
+  if (!show && pos >= 0) vis.splice(pos, 1);
+  setTableColumnVisibility(COL_SETTINGS[key].table, vis);
+}
+function closeColumnSettings(){ var m = document.getElementById('columnSettingsModal'); if (m) m.classList.remove('show'); }
+
 function closeExportSettings() {
   var modal = document.getElementById('exportSettingsModal');
   if (modal) modal.classList.remove('show');
@@ -3130,10 +3223,9 @@ function renderWorkbench() {
     var actionHandler = isApprovalTodo ? 'openPromotionApprovalTodo' : (isUrgeTodo ? 'openPromotionUrgeTodo' : '');
     var action = actionHandler ? '<div class="item-action" onclick="event.stopPropagation();' + actionHandler + '(' + idx + ', &quot;' + t.recordId + '&quot;)">去处理 ›</div>' : '<div class="item-action">去处理 ›</div>';
     var rowClick = actionHandler ? ' onclick="' + actionHandler + '(' + idx + ', &quot;' + t.recordId + '&quot;)" style="cursor:pointer;"' : '';
-    var unread = t.unread ? '<span style="display:inline-block;width:6px;height:6px;background:#f5222d;border-radius:50%;margin-right:6px;vertical-align:middle;"></span>' : '';
     return '<div class="wb-list-item"' + rowClick + '>' +
       '<div class="item-avatar" style="background:' + t.color + '">' + t.avatar + '</div>' +
-      '<div class="item-content"><div class="item-title">' + unread + t.title + '</div><div class="item-time">' + t.time + '</div></div>' + action + '</div>';
+      '<div class="item-content"><div class="item-title">' + t.title + '</div><div class="item-time">' + t.time + '</div></div>' + action + '</div>';
   }).join('');
   return '<div class="workbench">' +
     '<div class="wb-left"><div class="wb-header"><div class="title">📁 我的待办 <span class="count-badge">(' + totalCount + ')</span></div><div class="link">待办中心 ›</div></div>' +
@@ -3173,7 +3265,7 @@ function confirmPromotionUrge(recordId) {
     unread: true,
     type: 'promotion-urge',
     recordId: record.id,
-    title: '【催办】【请审批】' + record.employeeName + '的晋升见习转正流程',
+    title: '<span style="color:#f5222d;font-weight:700;">【催办】</span>请审批：' + record.employeeName + '的晋升见习转正流程',
     time: formatPromotionCnMinute(new Date())
   });
   if (activeTabId === 'workbench') renderContent();
@@ -3196,7 +3288,7 @@ function renderTeamProfile() {
     {key:'seq',label:'序号',w:55},{key:'name',label:'姓名',w:100},{key:'empNo',label:'工号',w:90},{key:'deptShort',label:'部门',w:110},{key:'dept',label:'部门全称',w:120},{key:'joinDate',label:'入职日期',w:100},{key:'pos',label:'职位',w:130},{key:'rank',label:'职级',w:70},{key:'superior',label:'直属上级',w:90},{key:'status',label:'人员状态',w:90},{key:'inventoryResult',label:'本年度盘点结果',w:120},{key:'leaveProb',label:'离职概率',w:80},{key:'leaveImpact',label:'离职影响',w:80},{key:'hasVisa',label:'是否有有效期验证',w:140},{key:'transferWill',label:'调动外派至其他国家或区域的意愿',w:220},{key:'travelWill',label:'未来一年出勤意愿',w:140},{key:'inventoryResult2',label:'本年度盘点结果',w:120},{key:'lastInventoryResult',label:'上一年度盘点结果',w:130},{key:'lastInventoryReport',label:'上一年度盘点报告',w:130},{key:'op',label:'操作',w:86}
   ];
   var totalW = dataCols.reduce(function(s,c){return s+c.w;},0);
-  var headers = dataCols.map(function(col, i){ return '<th' + (col.key==='seq'?' class="col-seq"':'') + ' style="width:' + col.w + 'px">' + col.label + '<span class="tp-drag-handle" onmousedown="startTpColResize(event,' + i + ')"></span></th>'; }).join('');
+  var headers = dataCols.map(function(col, i){ return '<th' + (col.key==='seq'?' class="col-seq"':(col.key==='op'?' class="col-op"':'')) + ' style="width:' + col.w + 'px">' + col.label + (col.key==='op'?' <span class="gear-btn" onclick="openColumnSettings(\'team\')" title="字段设置">⚙️</span>':'') + '<span class="tp-drag-handle" onmousedown="startTpColResize(event,' + i + ')"></span></th>'; }).join('');
   var colgroup = '<colgroup>' + dataCols.map(function(col){ return '<col style="width:' + col.w + 'px">'; }).join('') + '</colgroup>';
   function statusTag(s) { var st = s === '在职' ? 'background:#e8f3ff;color:#0E66FB;' : (s === '试用' ? 'background:#fff7e6;color:#fa8c16;' : 'background:#fff1f0;color:#f5222d;'); return '<span style="display:inline-block;padding:2px 10px;border-radius:10px;font-size:12px;' + st + '">' + s + '</span>'; }
   var rows = members.map(function(m,i){
@@ -3215,7 +3307,7 @@ function renderTeamProfile() {
     '<div class="query-field"><label>人员状态</label><select id="tpPersonStatus"><option value="">请选择</option><option>在职</option><option>试用</option><option>离职</option></select></div>' +
     '</div><div class="tp-query-btns"><button class="btn-query" onclick="alert(\'查询团队档案\')">查询</button><button class="btn-reset" onclick="resetTpQuery()">重置</button></div></div>' +
     '<div class="tp-card-gap"></div><div class="tp-table-wrap"><div class="tp-toolbar">' +
-    '<button class="btn-action" onclick="alert(\'转正申请\')">转正</button><button class="btn-action" onclick="alert(\'调动申请\')">调动</button><button class="btn-action" onclick="alert(\'离职申请\')">离职</button><button class="btn-action" onclick="openOrSwitchTab(\'晋升见习转正申请\',\'promotion-form\')">晋升见习转正</button>' +
+    '<button class="btn-action" onclick="alert(\'转正申请\')">转正</button><button class="btn-action" onclick="alert(\'调动申请\')">调动</button><button class="btn-action" onclick="openOrSwitchTab(\'晋升见习转正申请\',\'promotion-form\')">晋升见习转正</button><button class="btn-action" onclick="alert(\'离职申请\')">离职</button>' +
     '</div><div class="tp-table-scroll"><table class="tp-table team-profile-table" style="width:' + totalW + 'px;table-layout:fixed;">' + colgroup + '<thead><tr>' + headers + '</tr></thead><tbody>' + rows + '</tbody></table></div>' +
     '<div class="tp-pagination"><span>共' + members.length + '条</span><span class="page-btn">&lt;</span><span class="page-btn active">1</span><span class="page-btn">&gt;</span><select class="page-size"><option>20条/页</option></select><span class="jump-to">跳至<input type="text">页</span></div></div></div>';
 }
@@ -3277,8 +3369,8 @@ function renderPromotionInfo(scope) {
 function renderPromotionReviewTable(tableId) {
   var scope = tableId.indexOf('team') >= 0 ? 'team' : (tableId.indexOf('appoint') >= 0 ? 'permission' : 'self');
   var rows = getPromotionPerformanceRows(scope);
-  var body = rows.map(function(r,i){ return '<tr><td style="padding:8px 12px;border:1px solid #e8eaed;text-align:center;vertical-align:middle;">' + (i+1) + '</td><td style="padding:8px 12px;border:1px solid #e8eaed;background:#f5f5f5;color:#666;">' + r.period + '</td><td style="padding:8px 12px;border:1px solid #e8eaed;background:#f5f5f5;">' + renderPromotionResultTag(r.result) + '</td><td style="padding:8px 12px;border:1px solid #e8eaed;text-align:center;color:#999;"></td></tr>'; }).join('');
-  return promotionCard('晋升见习期间绩效考核周期和结果', '<div style="padding:12px;"><table id="' + tableId + '" style="width:100%;border-collapse:collapse;font-size:13px;border:1px solid #e8eaed;"><thead><tr style="background:#f7f8fc;"><th style="padding:8px 12px;text-align:left;border:1px solid #e8eaed;font-weight:500;color:#666;width:50px;">序号</th><th style="padding:8px 12px;text-align:left;border:1px solid #e8eaed;font-weight:500;color:#666;width:30%;"><span style="color:red;">*</span> 考核周期</th><th style="padding:8px 12px;text-align:left;border:1px solid #e8eaed;font-weight:500;color:#666;"><span style="color:red;">*</span> 考核结果</th><th style="padding:8px 12px;text-align:left;border:1px solid #e8eaed;font-weight:500;color:#666;width:70px;">操作</th></tr></thead><tbody>' + body + '</tbody></table></div>');
+  var body = rows.map(function(r,i){ return '<tr><td style="padding:8px 12px;border:1px solid #e8eaed;text-align:center;vertical-align:middle;">' + (i+1) + '</td><td style="padding:8px 12px;border:1px solid #e8eaed;background:#f5f5f5;color:#666;">' + r.period + '</td><td style="padding:8px 12px;border:1px solid #e8eaed;background:#f5f5f5;">' + renderPromotionResultTag(r.result) + '</td></tr>'; }).join('');
+  return promotionCard('晋升见习期间绩效考核周期和结果', '<div style="padding:12px;"><table id="' + tableId + '" style="width:100%;border-collapse:collapse;font-size:13px;border:1px solid #e8eaed;"><thead><tr style="background:#f7f8fc;"><th style="padding:8px 12px;text-align:left;border:1px solid #e8eaed;font-weight:500;color:#666;width:50px;">序号</th><th style="padding:8px 12px;text-align:left;border:1px solid #e8eaed;font-weight:500;color:#666;width:30%;"><span style="color:red;">*</span> 考核周期</th><th style="padding:8px 12px;text-align:left;border:1px solid #e8eaed;font-weight:500;color:#666;"><span style="color:red;">*</span> 考核结果</th></tr></thead><tbody>' + body + '</tbody></table></div>');
 }
 function refreshPromotionReviewTable(scope) {
   var tableId = scope === 'team' ? 'teamPerfReviewTable' : (scope === 'permission' ? 'appointPerfReviewTable' : 'selfPerfReviewTable');
@@ -3306,7 +3398,7 @@ function validatePromotionApply(scope){ var id=getPromotionPrefix(scope)+'Actual
 function submitPromotionApply(scope) {
   if (!validatePromotionApply(scope)) return;
   var prefix = getPromotionPrefix(scope); var btn=document.getElementById(prefix+'SubmitBtn'); if(btn){ btn.disabled=true; btn.innerHTML='<span style="display:inline-block;width:12px;height:12px;border:2px solid rgba(255,255,255,.45);border-top-color:#fff;border-radius:50%;animation:promoSpin .8s linear infinite;margin-right:6px;vertical-align:-2px;"></span>提交'; }
-  setTimeout(function(){ var record = buildPromotionRecord(scope); window.promotionSubmittedApplications.unshift(record); pendingTasks.unshift({avatar:record.employeeName.slice(0,1), color:'#ff9f43', unread:true, type:'promotion-approval', recordId:record.id, title:'【请审批】' + record.employeeName + '的晋升见习转正申请流程！', time:formatPromotionCnMinute(new Date())}); showPromotionTopToast('提交成功'); closePromotionApplyTab(scope); }, 700);
+  setTimeout(function(){ var record = buildPromotionRecord(scope); window.promotionSubmittedApplications.unshift(record); pendingTasks.unshift({avatar:record.employeeName.slice(0,1), color:'#ff9f43', unread:true, type:'promotion-approval', recordId:record.id, title:'请审批：' + record.employeeName + '的晋升见习转正申请流程！', time:formatPromotionCnMinute(new Date())}); showPromotionTopToast('提交成功'); closePromotionApplyTab(scope); }, 700);
 }
 function buildPromotionRecord(scope){ var emp=Object.assign({}, getPromotionEmployee(scope)); var prefix=getPromotionPrefix(scope); var actual=(document.getElementById(prefix+'ActualEndDate')||{}).value || ''; var now=new Date(); return {id:'promo-'+now.getTime(), title:emp.name+'的晋升见习转正申请', employeeName:emp.name, empNo:emp.empNo, dept:emp.dept, position:emp.position, rank:emp.rank, entryDate:emp.entryDate, trialStart:emp.startDate, expectedEnd:emp.expectEndDate, actualEnd:actual, applyTime:formatPromotionDate(now), creator:'黄东升', creatorTime:formatPromotionDateTime(now), status:'审批中', area:'--'}; }
 function closePromotionApplyTab(scope){ var type=scope==='team'?'promotion-form':(scope==='permission'?'appointment-promotion-form':'personnel-promotion-form'); var tabId='tab-'+type; var idx=openTabs.findIndex(function(t){return t.id===tabId;}); var ret=promotionReturnTabIds[tabId]; if(idx>=0)openTabs.splice(idx,1); activeTabId=(ret&&openTabs.find(function(t){return t.id===ret;}))?ret:'workbench'; renderTabs(); renderContent(); }
@@ -3335,8 +3427,17 @@ function openPromotionDetailTab(recordId,type,name){ var tabId='tab-'+type+'-'+r
 function findPromotionRecord(id){ return getPromotionProbationRecords().filter(function(r){return r.id===id;})[0] || getPromotionBaseRecords()[0]; }
 function renderPromotionProbation(){ var rows=getPromotionProbationRecords().map(function(r,i){ var op=r.status==='审批中'?oldUrgeButton(r.id):''; return '<tr><td>'+(i+1)+'</td><td><span style="color:#5b6afa;cursor:pointer;" onclick="openPromotionApplicationDetail(\''+r.id+'\')">'+r.title+'</span></td><td>'+r.employeeName+'</td><td>'+r.empNo+'</td><td>'+r.dept+'</td><td>'+r.trialStart+'</td><td>'+r.expectedEnd+'</td><td>'+r.applyTime+'</td><td><span style="'+promotionStatusStyle(r.status)+'padding:2px 12px;border-radius:12px;font-size:12px;display:inline-block;">'+r.status+'</span></td><td style="white-space:nowrap;">'+op+'</td></tr>'; }).join(''); return '<div style="height:100%;display:flex;flex-direction:column;background:#f5f6fa;overflow:hidden;"><div style="padding:12px 20px;background:#fff;border-bottom:1px solid #e8eaed;display:flex;justify-content:flex-end;"><button style="padding:6px 16px;border:none;border-radius:4px;background:var(--primary);color:#fff;font-size:13px;cursor:pointer;" onclick="openOrSwitchTab(\'晋升见习转正申请\',\'personnel-promotion-form\')">晋升见习转正</button></div><div style="flex:1;overflow:auto;padding:12px 20px;"><table style="width:100%;border-collapse:collapse;background:#fff;font-size:13px;"><thead><tr style="background:#f7f8fc;"><th>序号</th><th>标题</th><th>员工</th><th>工号</th><th>部门全称</th><th>晋升见习开始日期</th><th>晋升见习预计结束日期</th><th>申请时间</th><th>审批状态</th><th>操作</th></tr></thead><tbody>'+rows+'</tbody></table></div></div>'; }
 function renderTrialPeriodProcess(){ var records=getPromotionProbationRecords(); var rows=records.map(function(r,i){ var op=r.status==='审批中'?oldUrgeButton(r.id):''; return '<tr><td class="col-seq">'+(i+1)+'</td><td><span class="link-title" onclick="openPromotionApplicationDetail(\''+r.id+'\')">'+r.title+'</span></td><td>'+r.employeeName+'</td><td>'+r.empNo+'</td><td>'+getPromotionDeptLowestLevel(r.dept)+'</td><td title="'+r.dept+'">'+r.dept+'</td><td>'+r.trialStart+'</td><td>'+r.expectedEnd+'</td><td>'+r.applyTime+'</td><td><span style="'+promotionStatusStyle(r.status)+'padding:2px 12px;border-radius:12px;font-size:12px;display:inline-block;">'+r.status+'</span></td><td>'+r.creator+'</td><td>'+r.creatorTime+'</td><td>'+(r.area||'--')+'</td><td>是</td><td class="col-op">'+op+'</td></tr>'; }).join(''); return '<div style="height:100%;display:flex;flex-direction:column;background:#f5f6fa;overflow:hidden;padding:0;">' +
-  '<div class="tp-query" style="margin:0;"><div class="tp-query-fields"><div class="query-field"><label>员工</label><input id="tppEmp" placeholder="请通过工号/姓名搜索"></div><div class="query-field"><label>部门</label><input id="tppDept" placeholder="请选择" readonly></div><div class="query-field"><label>划分区域</label><input id="tppArea" placeholder="请选择" readonly></div><div class="query-field"><label>审批状态</label><select id="tppStatus"><option value="">请选择</option><option>审批中</option><option>通过</option><option>不通过</option><option>已作废</option><option>已驳回</option></select></div><div class="query-field"><label>创建人</label><input id="tppCreator" placeholder="请通过工号/姓名搜索"></div><div class="query-field"><label>创建时间</label><input id="tppDate" placeholder="开始时间 ~ 结束时间" readonly></div></div><div class="tp-query-btns"><button class="btn-query">查询</button><button class="btn-reset" onclick="document.getElementById(\'tppEmp\').value=\'\';document.getElementById(\'tppCreator\').value=\'\';document.getElementById(\'tppDate\').value=\'\';">重置</button></div></div>' +
-  '<div style="height:16px;flex-shrink:0;"></div><div class="tp-table-wrap tpp-page" style="margin:0 0 -12px 0;"><div style="display:flex;justify-content:flex-end;padding:8px 20px 0;flex-shrink:0;"><button style="padding:6px 16px;border:none;border-radius:4px;background:var(--primary);color:#fff;font-size:13px;cursor:pointer;white-space:nowrap;" onclick="openOrSwitchTab(\'晋升见习转正申请\',\'appointment-promotion-form\')">晋升见习转正</button><button style="padding:6px 16px;border:1px solid #d9d9d9;border-radius:4px;background:#fff;color:#333;font-size:13px;cursor:pointer;white-space:nowrap;margin-left:8px;">导出</button><button style="padding:6px 16px;border:1px solid #d9d9d9;border-radius:4px;background:#fff;color:#333;font-size:13px;cursor:pointer;white-space:nowrap;margin-left:4px;" onclick="openExportSettings()">⚙️ 导出设置</button></div><div class="tp-table-scroll" style="padding:8px 0 8px 12px;"><table class="tp-table tpp-table" style="table-layout:fixed;width:1540px;"><thead><tr><th style="width:55px">序号</th><th style="width:200px">标题</th><th style="width:90px">员工</th><th style="width:100px">工号</th><th style="width:110px">部门</th><th style="width:120px">部门全称</th><th style="width:140px">晋升见习开始日期</th><th style="width:150px">晋升见习预计结束日期</th><th style="width:110px">申请时间</th><th style="width:90px">审批状态</th><th style="width:90px">创建人</th><th style="width:150px">创建时间</th><th style="width:90px">划分区域</th><th style="width:130px">是否有试用协议</th><th style="width:80px">操作</th></tr></thead><tbody>'+rows+'</tbody></table></div><div class="tp-pagination"><span>共'+records.length+'条</span><span class="page-btn">&lt;</span><span class="page-btn active">1</span><span class="page-btn">&gt;</span><select class="page-size"><option>20条/页</option></select><span class="jump-to">跳至<input type="text">页</span></div></div></div>'; }
+  '<div class="tp-query" style="margin:0;">' +
+  '<div class="tp-scheme-row" style="border-bottom:1px solid #e8eaed;padding-bottom:10px;">' +
+    '<div class="tp-query-label" style="display:inline-flex;align-items:center;font-weight:600;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:6px;"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>查询条件</div>' +
+    '<div class="query-header-right">' +
+      '<select class="query-scheme-select"><option>标准方案</option></select>' +
+      '<span class="icon-btn" title="刷新" onclick="alert(\'刷新\')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg></span>' +
+      '<span class="icon-btn" title="设置" onclick="alert(\'设置方案\')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09A1.65 1.65 0 0 0 19.4 15a1.65 1.65 0 0 0 1.51 1z"/></svg></span>' +
+    '</div>' +
+  '</div>' +
+  '<div class="tp-query-fields"><div class="query-field"><label>员工</label><input id="tppEmp" placeholder="请通过工号/姓名搜索"></div><div class="query-field"><label>部门</label><input id="tppDept" placeholder="请选择" readonly></div><div class="query-field"><label>划分区域</label><input id="tppArea" placeholder="请选择" readonly></div><div class="query-field"><label>审批状态</label><select id="tppStatus"><option value="">请选择</option><option>审批中</option><option>通过</option><option>不通过</option><option>已作废</option><option>已驳回</option></select></div><div class="query-field advanced-field"><label>创建人</label><input id="tppCreator" placeholder="请通过工号/姓名搜索"></div><div class="query-field advanced-field"><label>创建时间</label><input id="tppDate" placeholder="开始时间 ~ 结束时间" readonly></div><div class="advanced-filter-row"><a class="advanced-filter-link" onclick="toggleAdvancedFilter(this)">显示高级筛选</a></div></div><div class="tp-query-btns"><button class="btn-query">查询</button><button class="btn-reset" onclick="document.getElementById(\'tppEmp\').value=\'\';document.getElementById(\'tppCreator\').value=\'\';document.getElementById(\'tppDate\').value=\'\';">重置</button></div></div>' +
+  '<div style="height:16px;flex-shrink:0;"></div><div class="tp-table-wrap tpp-page" style="margin:0 0 -12px 0;"><div style="display:flex;justify-content:flex-end;padding:8px 20px 0;flex-shrink:0;"><button style="padding:6px 16px;border:none;border-radius:4px;background:var(--primary);color:#fff;font-size:13px;cursor:pointer;white-space:nowrap;" onclick="openOrSwitchTab(\'晋升见习转正申请\',\'appointment-promotion-form\')">晋升见习转正</button><button style="padding:6px 16px;border:1px solid #d9d9d9;border-radius:4px;background:#fff;color:#333;font-size:13px;cursor:pointer;white-space:nowrap;margin-left:8px;">导出</button><button style="padding:6px 16px;border:1px solid #d9d9d9;border-radius:4px;background:#fff;color:#333;font-size:13px;cursor:pointer;white-space:nowrap;margin-left:4px;" onclick="openExportSettings()">⚙️ 导出设置</button></div><div class="tp-table-scroll" style="padding:8px 0 8px 12px;"><table class="tp-table tpp-table" style="table-layout:fixed;width:1540px;"><thead><tr><th style="width:55px">序号</th><th style="width:200px">标题</th><th style="width:90px">员工</th><th style="width:100px">工号</th><th style="width:110px">部门</th><th style="width:120px">部门全称</th><th style="width:140px">晋升见习开始日期</th><th style="width:150px">晋升见习预计结束日期</th><th style="width:110px">申请时间</th><th style="width:90px">审批状态</th><th style="width:90px">创建人</th><th style="width:150px">创建时间</th><th style="width:90px">划分区域</th><th style="width:130px">是否有试用协议</th><th class="col-op" style="width:80px">操作 <span class="gear-btn" onclick="openColumnSettings(\'tpp\')" title="字段设置">⚙️</span></th></tr></thead><tbody>'+rows+'</tbody></table></div><div class="tp-pagination"><span>共'+records.length+'条</span><span class="page-btn">&lt;</span><span class="page-btn active">1</span><span class="page-btn">&gt;</span><select class="page-size"><option>20条/页</option></select><span class="jump-to">跳至<input type="text">页</span></div></div></div>'; }
 function renderPromotionApplicationDetail(recordId){ return renderPromotionDetail(findPromotionRecord(recordId), false); }
 function renderPromotionApprovalDetail(recordId){ return renderPromotionDetail(findPromotionRecord(recordId), true); }
 function renderPromotionDetail(r, approval){
@@ -3413,11 +3514,10 @@ function renderPromotionDetail(r, approval){
   var perfRows = resultRows().map(function(row, idx) {
     return '<tr><td style="padding:8px 12px;border:1px solid #e8eaed;text-align:center;vertical-align:middle;">' + (idx + 1) + '</td>' +
       '<td style="padding:8px 12px;border:1px solid #e8eaed;background:#f5f5f5;color:#666;">' + safe(row.period) + '</td>' +
-      '<td style="padding:8px 12px;border:1px solid #e8eaed;background:#f5f5f5;">' + renderPromotionResultTag(row.result) + '</td>' +
-      '<td style="padding:8px 12px;border:1px solid #e8eaed;text-align:center;color:#999;"></td></tr>';
+      '<td style="padding:8px 12px;border:1px solid #e8eaed;background:#f5f5f5;">' + renderPromotionResultTag(row.result) + '</td></tr>';
   }).join('');
-  var performanceSection = promotionCard('晋升见习期间绩效考核周期和结果', '<div style="padding:12px;"><table id="detailPerfReviewTable" style="width:100%;border-collapse:collapse;font-size:13px;border:1px solid #e8eaed;"><thead><tr style="background:#f7f8fc;"><th style="padding:8px 12px;text-align:left;border:1px solid #e8eaed;font-weight:500;color:#666;width:50px;">序号</th><th style="padding:8px 12px;text-align:left;border:1px solid #e8eaed;font-weight:500;color:#666;width:30%;"><span style="color:red;">*</span> 考核周期</th><th style="padding:8px 12px;text-align:left;border:1px solid #e8eaed;font-weight:500;color:#666;"><span style="color:red;">*</span> 考核结果</th><th style="padding:8px 12px;text-align:left;border:1px solid #e8eaed;font-weight:500;color:#666;width:70px;">操作</th></tr></thead><tbody>' + perfRows + '</tbody></table></div>');
-  var attachmentSection = renderPromotionAttachment();
+  var performanceSection = promotionCard('晋升见习期间绩效考核周期和结果', '<div style="padding:12px;"><table id="detailPerfReviewTable" style="width:100%;border-collapse:collapse;font-size:13px;border:1px solid #e8eaed;"><thead><tr style="background:#f7f8fc;"><th style="padding:8px 12px;text-align:left;border:1px solid #e8eaed;font-weight:500;color:#666;width:50px;">序号</th><th style="padding:8px 12px;text-align:left;border:1px solid #e8eaed;font-weight:500;color:#666;width:30%;"><span style="color:red;">*</span> 考核周期</th><th style="padding:8px 12px;text-align:left;border:1px solid #e8eaed;font-weight:500;color:#666;"><span style="color:red;">*</span> 考核结果</th></tr></thead><tbody>' + perfRows + '</tbody></table></div>');
+  var attachmentSection = renderPromotionAttachment(true);
   function timelineNode(title, name, text, active, extra) {
     return '<div style="position:relative;padding-left:28px;margin-bottom:26px;">' +
       '<span style="position:absolute;left:-7px;top:2px;width:12px;height:12px;border-radius:50%;background:' + (active ? '#14c269' : '#fff') + ';border:2px solid ' + (active ? '#14c269' : '#9aa1ad') + ';box-sizing:border-box;"></span>' +
