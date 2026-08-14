@@ -2688,11 +2688,11 @@ function renderPromotionEmployeeInfo(scope) {
   var prefix = scope === 'self' ? 'selfPromotion' : (scope === 'team' ? 'teamPromotion' : 'appointPromotion');
   return promotionCard('员工信息', '<div style="padding:10px 12px;display:grid;grid-template-columns:1fr 1fr;gap:14px 24px;">' +
     promotionField('员工', renderPromotionEmployeeControl(scope, emp), true, false) +
-    promotionField('工号', promotionReadonlyInput(prefix + 'EmpNo', emp.empNo), true, false) +
-    promotionField('职位', promotionReadonlyInput(prefix + 'Position', emp.position), true, false) +
-    promotionField('职级', promotionReadonlyInput(prefix + 'Rank', emp.rank), true, false) +
-    promotionField('入职日期', promotionReadonlyInput(prefix + 'EntryDate', emp.entryDate), true, false) +
-    promotionField('部门全称', promotionReadonlyInput(prefix + 'Dept', emp.dept), true, true) +
+    promotionField('工号', promotionReadonlyInput(prefix + 'EmpNo', emp.empNo), false, false) +
+    promotionField('职位', promotionReadonlyInput(prefix + 'Position', emp.position), false, false) +
+    promotionField('职级', promotionReadonlyInput(prefix + 'Rank', emp.rank), false, false) +
+    promotionField('入职日期', promotionReadonlyInput(prefix + 'EntryDate', emp.entryDate), false, false) +
+    promotionField('部门全称', promotionReadonlyInput(prefix + 'Dept', emp.dept), false, true) +
   '</div>');
 }
 
@@ -3360,9 +3360,9 @@ function renderPromotionInfo(scope) {
   var emp = getPromotionEmployee(scope);
   var prefix = getPromotionPrefix(scope);
   return promotionCard('晋升信息', '<div style="padding:10px 12px;display:grid;grid-template-columns:1fr 1fr;gap:14px 24px;">' +
-    promotionField('业务类型', '<select style="width:100%;padding:7px 12px;border:1px solid #e0e0e0;border-radius:4px;font-size:13px;outline:none;box-sizing:border-box;background:#fff;color:#333;cursor:pointer;"><option selected>晋升见习转正</option></select>', true, false) +
-    promotionField('晋升见习开始日期', promotionReadonlyInput(prefix + 'StartDate', emp.startDate), true, false) +
-    promotionField('晋升见习预计结束日期', promotionReadonlyInput(prefix + 'ExpectEndDate', emp.expectEndDate), true, false) +
+    promotionField('业务类型', '<select disabled style="width:100%;padding:7px 12px;border:1px solid #e8e8e8;border-radius:4px;font-size:13px;outline:none;box-sizing:border-box;background:#f5f5f5;color:#999;cursor:not-allowed;"><option selected>晋升见习转正</option></select>', false, false) +
+    promotionField('晋升见习开始日期', promotionReadonlyInput(prefix + 'StartDate', emp.startDate), false, false) +
+    promotionField('晋升见习预计结束日期', promotionReadonlyInput(prefix + 'ExpectEndDate', emp.expectEndDate), false, false) +
     promotionField('晋升见习实际结束日期', promotionActualEndDateControl(prefix + 'ActualEndDate', emp.actualEnd || '', scope), true, false) +
   '</div>');
 }
@@ -3370,7 +3370,7 @@ function renderPromotionReviewTable(tableId) {
   var scope = tableId.indexOf('team') >= 0 ? 'team' : (tableId.indexOf('appoint') >= 0 ? 'permission' : 'self');
   var rows = getPromotionPerformanceRows(scope);
   var body = rows.map(function(r,i){ return '<tr><td style="padding:8px 12px;border:1px solid #e8eaed;text-align:center;vertical-align:middle;">' + (i+1) + '</td><td style="padding:8px 12px;border:1px solid #e8eaed;background:#f5f5f5;color:#666;">' + r.period + '</td><td style="padding:8px 12px;border:1px solid #e8eaed;background:#f5f5f5;">' + renderPromotionResultTag(r.result) + '</td></tr>'; }).join('');
-  return promotionCard('晋升见习期间绩效考核周期和结果', '<div style="padding:12px;"><table id="' + tableId + '" style="width:100%;border-collapse:collapse;font-size:13px;border:1px solid #e8eaed;"><thead><tr style="background:#f7f8fc;"><th style="padding:8px 12px;text-align:left;border:1px solid #e8eaed;font-weight:500;color:#666;width:50px;">序号</th><th style="padding:8px 12px;text-align:left;border:1px solid #e8eaed;font-weight:500;color:#666;width:30%;"><span style="color:red;">*</span> 考核周期</th><th style="padding:8px 12px;text-align:left;border:1px solid #e8eaed;font-weight:500;color:#666;"><span style="color:red;">*</span> 考核结果</th></tr></thead><tbody>' + body + '</tbody></table></div>');
+  return promotionCard('晋升见习期间绩效考核周期和结果', '<div style="padding:12px;"><table id="' + tableId + '" style="width:100%;border-collapse:collapse;font-size:13px;border:1px solid #e8eaed;"><thead><tr style="background:#f7f8fc;"><th style="padding:8px 12px;text-align:left;border:1px solid #e8eaed;font-weight:500;color:#666;width:50px;">序号</th><th style="padding:8px 12px;text-align:left;border:1px solid #e8eaed;font-weight:500;color:#666;width:30%;">考核周期</th><th style="padding:8px 12px;text-align:left;border:1px solid #e8eaed;font-weight:500;color:#666;">考核结果</th></tr></thead><tbody>' + body + '</tbody></table></div>');
 }
 function refreshPromotionReviewTable(scope) {
   var tableId = scope === 'team' ? 'teamPerfReviewTable' : (scope === 'permission' ? 'appointPerfReviewTable' : 'selfPerfReviewTable');
